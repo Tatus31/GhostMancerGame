@@ -14,9 +14,14 @@ namespace PlayerMovement
         [Header("Movement")]
         [Range(0f, 100f)]
         [SerializeField] private float moveSpeed = 5f;
+        [Range(0f, 100f)]
+        [SerializeField] private float accelerationOnGround = 0.1f;
+        [Range(0f, 100f)]
+        [SerializeField] private float accelerationInAir = 0.2f;
 
         private float _gravity;
         private float _jumpVelocity;
+        private float _velocityXsmoothing;
         
         private Vector2 _velocity;
         
@@ -58,7 +63,8 @@ namespace PlayerMovement
             }
             _wasJumpPressed = false;
             
-            _velocity.x = input.x * moveSpeed;
+            float targetVelocityX = input.x * moveSpeed;
+            _velocity.x = Mathf.SmoothDamp(_velocity.x, targetVelocityX, ref _velocityXsmoothing, _playerController.GetCollisionInfo.Bottom ? accelerationOnGround : accelerationInAir);
             _velocity.y += _gravity * Time.fixedDeltaTime; 
             
             _playerController.Displacement(_velocity * Time.fixedDeltaTime);
