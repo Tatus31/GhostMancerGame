@@ -1,4 +1,5 @@
 using System;
+using System.Net.Security;
 using System.Reflection.Emit;
 using UnityEngine;
 
@@ -22,9 +23,11 @@ namespace PlayerMovement
             public bool Top;
             public bool Bottom;
             public bool ClimbingSlope;
+            public bool DescendingSlope;
 
             public float SlopeAngle;
             public float PreviousSlopeAngle;
+            public Vector2 PreviousVelocity;
 
             public void ResetCollisions()
             {
@@ -33,6 +36,7 @@ namespace PlayerMovement
                 Top = false;
                 Bottom = false;
                 ClimbingSlope = false;
+                DescendingSlope = false;
 
                 PreviousSlopeAngle = SlopeAngle;
                 SlopeAngle = 0;
@@ -40,6 +44,7 @@ namespace PlayerMovement
         }
 
         [SerializeField] private int maxSlopeAngle = 75;
+        [SerializeField] private int maxDescendAngle = 75;
         [SerializeField] private int horizontalRayCount = 4;
         [SerializeField] private int verticalRayCount = 4;
         [SerializeField] private LayerMask collisionLayer;
@@ -65,6 +70,12 @@ namespace PlayerMovement
         {
             UpdateRaycastOrigins();
             _collisionInfo.ResetCollisions();
+            _collisionInfo.PreviousVelocity = velocity;
+
+            if (velocity.y < 0)
+            {
+                DescendSlope(ref velocity);
+            }
 
             if (velocity.x != 0)
             {
@@ -116,6 +127,24 @@ namespace PlayerMovement
                     _collisionInfo.Top = dirY == 1;
                 }
             }
+            
+            if (_collisionInfo.ClimbingSlope)
+            {
+                float dirX = Mathf.Sign(velocity.x);
+                rayLength  = Mathf.Abs(velocity.x) + ColliderSkinWidth;
+                Vector2 rayOrigin = ((dirX == -1) ? _raycastOrigins.BottomLeft : _raycastOrigins.BottomRight);
+                RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * dirX, rayLength, collisionLayer);
+
+                if (hit)
+                {
+                    float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
+                    if (!Mathf.Approximately(slopeAngle, _collisionInfo.SlopeAngle))
+                    {
+                        velocity.x = (hit.distance - ColliderSkinWidth) * dirX;
+                        _collisionInfo.SlopeAngle = slopeAngle;
+                    }
+                }
+            }
         }
         
         private void CalculateHorizontalCollisions(ref Vector2 velocity)
@@ -136,6 +165,12 @@ namespace PlayerMovement
                     float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
                     if (i == 0 && slopeAngle <= maxSlopeAngle)
                     {
+                        if (_collisionInfo.DescendingSlope)
+                        {
+                            _collisionInfo.DescendingSlope = false;
+                            velocity = _collisionInfo.PreviousVelocity;
+                        }
+                        
                         float distanceToSlope = 0f;
                         if (!Mathf.Approximately(slopeAngle, _collisionInfo.PreviousSlopeAngle))
                         {
@@ -177,6 +212,35 @@ namespace PlayerMovement
                 _collisionInfo.Bottom = true;
                 _collisionInfo.ClimbingSlope = true;
                 _collisionInfo.SlopeAngle = slopeAngle;
+            }
+        }
+
+        private void DescendSlope(ref Vector2 velocity)
+        {
+            float dirX = Mathf.Sign(velocity.x);
+            Vector2 rayOrigin = dirX == -1 ? _raycastOrigins.BottomRight : _raycastOrigins.BottomLeft;
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, Mathf.Infinity, collisionLayer);
+
+            if (hit)
+            {
+                float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
+                if (slopeAngle != 0 && slopeAngle <= maxDescendAngle)
+                {
+                    if (Mathf.Sign(hit.normal.x) == dirX)
+                    {
+                        if (hit.distance - ColliderSkinWidth <= Mathf.Tan(slopeAngle * Mathf.Deg2Rad) * Mathf.Abs(velocity.x))
+                        {
+                            float descendDistance = Mathf.Abs(velocity.x);
+                            float descendVelocityY = Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * descendDistance;
+                            velocity.x = Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * descendDistance * Mathf.Sign(velocity.x);
+                            velocity.y -= descendVelocityY;
+                            
+                            _collisionInfo.SlopeAngle = slopeAngle;
+                            _collisionInfo.DescendingSlope = true;
+                            _collisionInfo.Bottom = true;
+                        }
+                    }
+                }
             }
         }
 
