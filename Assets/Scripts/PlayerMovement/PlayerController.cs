@@ -1,3 +1,4 @@
+using System;
 using System.Reflection.Emit;
 using UnityEngine;
 
@@ -20,6 +21,10 @@ namespace PlayerMovement
             public bool Right;
             public bool Top;
             public bool Bottom;
+            public bool ClimbingSlope;
+
+            public float SlopeAngle;
+            public float PreviousSlopeAngle;
 
             public void ResetCollisions()
             {
@@ -27,9 +32,14 @@ namespace PlayerMovement
                 Right = false;
                 Top = false;
                 Bottom = false;
+                ClimbingSlope = false;
+
+                PreviousSlopeAngle = SlopeAngle;
+                SlopeAngle = 0;
             }
         }
-        
+
+        [SerializeField] private int maxSlopeAngle = 75;
         [SerializeField] private int horizontalRayCount = 4;
         [SerializeField] private int verticalRayCount = 4;
         [SerializeField] private LayerMask collisionLayer;
@@ -93,9 +103,14 @@ namespace PlayerMovement
                 RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up  * dirY, rayLength, collisionLayer);
 
                 if (hit)
-                {
+                {            
                     velocity.y = (hit.distance - ColliderSkinWidth) * dirY;
                     rayLength = hit.distance;
+
+                    if (_collisionInfo.ClimbingSlope)
+                    {
+                        velocity.x = velocity.y / Mathf.Tan(_collisionInfo.SlopeAngle * Mathf.Deg2Rad) * Mathf.Sign(velocity.x);
+                    }
                     
                     _collisionInfo.Bottom = dirY == -1;
                     _collisionInfo.Top = dirY == 1;
@@ -115,14 +130,53 @@ namespace PlayerMovement
                 
                 RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * dirX, rayLength, collisionLayer);
 
+                // We hit a wall 
                 if (hit)
-                {
-                    velocity.x = (hit.distance - ColliderSkinWidth) * dirX;
-                    rayLength = hit.distance;
+                {      
+                    float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
+                    if (i == 0 && slopeAngle <= maxSlopeAngle)
+                    {
+                        float distanceToSlope = 0f;
+                        if (!Mathf.Approximately(slopeAngle, _collisionInfo.PreviousSlopeAngle))
+                        {
+                            distanceToSlope = hit.distance - ColliderSkinWidth;
+                            velocity.x -= distanceToSlope * dirX;
+                        }
+                        ClimbSlope(ref velocity, slopeAngle);
+                        velocity.x += distanceToSlope * dirX;
+                    }
 
-                    _collisionInfo.Left = dirX == -1;
-                    _collisionInfo.Right = dirX == 1;
+                    //We hit a wall while climbing slope
+                    if (!_collisionInfo.ClimbingSlope || slopeAngle > maxSlopeAngle)
+                    {
+                        velocity.x = (hit.distance - ColliderSkinWidth) * dirX;
+                        rayLength = hit.distance;
+
+                        if (_collisionInfo.ClimbingSlope)
+                        {
+                            velocity.y = Mathf.Tan(_collisionInfo.SlopeAngle * Mathf.Deg2Rad) * Mathf.Abs(velocity.x);
+                        }
+
+                        _collisionInfo.Left = dirX == -1;
+                        _collisionInfo.Right = dirX == 1;
+                    }
                 }
+            }
+        }
+
+        private void ClimbSlope(ref Vector2 velocity, float slopeAngle)
+        {
+            float climbDistance = Mathf.Abs(velocity.x);
+            float climbVelocityY = Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * climbDistance;
+
+            if (velocity.y <= climbVelocityY)
+            {
+                velocity.y = climbVelocityY;
+                velocity.x = Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * climbDistance * Mathf.Sign(velocity.x);
+                
+                _collisionInfo.Bottom = true;
+                _collisionInfo.ClimbingSlope = true;
+                _collisionInfo.SlopeAngle = slopeAngle;
             }
         }
 
