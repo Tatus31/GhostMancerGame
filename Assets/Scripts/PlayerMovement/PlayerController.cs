@@ -1,3 +1,4 @@
+using System.Reflection.Emit;
 using UnityEngine;
 
 namespace PlayerMovement
@@ -12,6 +13,22 @@ namespace PlayerMovement
             public Vector2 TopLeft;
             public Vector2 TopRight;
         }
+
+        public struct CollisionInfo
+        {
+            public bool Left;
+            public bool Right;
+            public bool Top;
+            public bool Bottom;
+
+            public void ResetCollisions()
+            {
+                Left = false;
+                Right = false;
+                Top = false;
+                Bottom = false;
+            }
+        }
         
         [SerializeField] private int horizontalRayCount = 4;
         [SerializeField] private int verticalRayCount = 4;
@@ -24,6 +41,9 @@ namespace PlayerMovement
         
         private BoxCollider2D _playerBoxCollider;
         private RaycastOrigins _raycastOrigins;
+        private CollisionInfo _collisionInfo;
+        
+        public CollisionInfo GetCollisionInfo => _collisionInfo;
 
         private void Start()
         {            
@@ -34,6 +54,7 @@ namespace PlayerMovement
         public void Displacement(Vector2 velocity)
         {
             UpdateRaycastOrigins();
+            _collisionInfo.ResetCollisions();
 
             if (velocity.x != 0)
             {
@@ -75,6 +96,9 @@ namespace PlayerMovement
                 {
                     velocity.y = (hit.distance - ColliderSkinWidth) * dirY;
                     rayLength = hit.distance;
+                    
+                    _collisionInfo.Bottom = dirY == -1;
+                    _collisionInfo.Top = dirY == 1;
                 }
             }
         }
@@ -95,6 +119,9 @@ namespace PlayerMovement
                 {
                     velocity.x = (hit.distance - ColliderSkinWidth) * dirX;
                     rayLength = hit.distance;
+
+                    _collisionInfo.Left = dirX == -1;
+                    _collisionInfo.Right = dirX == 1;
                 }
             }
         }
@@ -114,7 +141,7 @@ namespace PlayerMovement
         }
 
         private void OnDrawGizmos()
-        {
+        {            
             if(!_playerBoxCollider)
                 return;
             
@@ -131,6 +158,7 @@ namespace PlayerMovement
             {
                 Debug.DrawRay(_raycastOrigins.BottomRight + Vector2.up * _horizontalRaySpacing * i, Vector3.right * 2,  Color.red); 
             }
+
         }
     }
 } 
