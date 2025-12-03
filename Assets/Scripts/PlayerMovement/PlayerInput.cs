@@ -8,6 +8,7 @@ namespace PlayerMovement
     public class PlayerInput : MonoBehaviour
     {        
         public bool WasJumpPressed { get; private set; }
+        public bool WasJumpReleased { get; private set; }
         public Vector2 MoveInput { get; private set; }
         
         private InputSystem_Actions _inputSystemActions;
@@ -24,7 +25,8 @@ namespace PlayerMovement
 
             _inputSystemActions.Player.Move.performed += OnPlayerMove;
             _inputSystemActions.Player.Move.canceled += OnPlayerMove;
-            _inputSystemActions.Player.Jump.performed += OnPlayerJump;
+            _inputSystemActions.Player.Jump.started += OnPlayerJump;
+            _inputSystemActions.Player.Jump.canceled += OnPlayerJumpRelease;
         }
         
         private void OnDisable()
@@ -35,9 +37,10 @@ namespace PlayerMovement
             _inputSystemActions.Player.Move.performed -= OnPlayerMove;
             _inputSystemActions.Player.Move.canceled -= OnPlayerMove;
             _inputSystemActions.Player.Jump.performed -= OnPlayerJump;
+            _inputSystemActions.Player.Jump.canceled -= OnPlayerJumpRelease;
         }
 
-        public void OnPlayerMove(InputAction.CallbackContext ctx)
+        private void OnPlayerMove(InputAction.CallbackContext ctx)
         {
             MoveInput = ctx.ReadValue<Vector2>();
         }        
@@ -47,9 +50,19 @@ namespace PlayerMovement
             WasJumpPressed = true;
         }
 
+        private void OnPlayerJumpRelease(InputAction.CallbackContext ctx)
+        {
+            WasJumpReleased  = true;
+        }
+
         public void OnPlayerConsumeJump()
         {
             WasJumpPressed = false;
+        }
+
+        public void OnPlayerConsumeJumpRelease()
+        {
+            WasJumpReleased = false;
         }
     }
 }

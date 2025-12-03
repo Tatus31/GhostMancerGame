@@ -1564,7 +1564,7 @@ MonoBehaviour:
   timeToJumpApex: 0.4
   moveSpeed: 5
   accelerationOnGround: 0.1
-  accelerationInAir: 0.1
+  accelerationInAir: 0.2
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
