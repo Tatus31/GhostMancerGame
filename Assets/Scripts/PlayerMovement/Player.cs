@@ -34,6 +34,9 @@ namespace PlayerMovement
         [SerializeField] private float decelerationOnGround = 0.1f;
         [Range(0f, 100f)]
         [SerializeField] private float decelerationInAir = 0.2f;
+        [Header("[Movement Limits]")]
+        [Range(0f, 100f)]
+        [SerializeField] private float maxFallSpeed = 10f;
 
         private float _gravity;
         private float _maxJumpVelocity;
@@ -114,12 +117,15 @@ namespace PlayerMovement
         private void OnPlayerMovement(Vector2 input)
         {            
             float targetVelocityX = input.x * moveSpeed;
+            float atApexPosition = 0;
             
-            float atApexPosition = Mathf.InverseLerp(0, apexThreshold, Mathf.Abs(_velocity.y));
-            float atApexVelocityBonus = 1f + (atApexPosition * atApexSpeedBonus);
+            if (!_playerController.GetCollisionInfo.Bottom)
+            {
+                atApexPosition = Mathf.InverseLerp(0, apexThreshold, Mathf.Abs(_velocity.y));
+                float atApexVelocityBonus = 1f + (atApexPosition * atApexSpeedBonus);
+                targetVelocityX *= atApexVelocityBonus;
+            }
             
-            targetVelocityX *= atApexVelocityBonus;
-
             float accelerateOrDecelerate;
 
             if (_playerController.GetCollisionInfo.Bottom)
@@ -132,11 +138,22 @@ namespace PlayerMovement
                 accelerateOrDecelerate = (Mathf.Abs(input.x) > 0.01f) ? accelerationInAir : decelerationInAir;
                 _velocity.x = Mathf.SmoothDamp(_velocity.x, targetVelocityX, ref _velocityXSmoothing, accelerateOrDecelerate);
             }
-            
-            float currentGravity = Mathf.Lerp(_gravity * apexGravityMultiplier, _gravity, atApexPosition);
+
+            float currentGravity = _gravity;
+            if (!_playerController.GetCollisionInfo.Bottom)
+            {
+                currentGravity = Mathf.Lerp(_gravity * apexGravityMultiplier, _gravity, atApexPosition);
+            }
+
             OnGravityChanged?.Invoke(currentGravity);
+
+            _velocity.y += currentGravity * Time.fixedDeltaTime;
+            _velocity.y = Mathf.Clamp(_velocity.y,-maxFallSpeed, maxFallSpeed );
             
-            _velocity.y += currentGravity * Time.fixedDeltaTime; 
+            // if(_velocity.y <= maxFallSpeed)
+            //     _velocity.y += currentGravity * Time.fixedDeltaTime; 
+            // else
+            //     _velocity.y = maxFallSpeed;
             
             _playerController.Displacement(_velocity * Time.fixedDeltaTime);
         }
@@ -146,6 +163,11 @@ namespace PlayerMovement
             _gravity = -(2 * maxJumpHeight) / Mathf.Pow(timeToJumpApex, 2);
             _maxJumpVelocity = Mathf.Abs(_gravity) * timeToJumpApex;
             _minJumpVelocity = Mathf.Sqrt(2 *  Mathf.Abs(_gravity) * minJumpHeight);
+        }
+
+        private void OnValidate()
+        {
+            JumpVariableSetup();
         }
     }
 }
