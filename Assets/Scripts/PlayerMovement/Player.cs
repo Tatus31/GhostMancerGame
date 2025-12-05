@@ -6,6 +6,9 @@ namespace PlayerMovement
     [RequireComponent( typeof(PlayerController), typeof(PlayerInput) )]
     public class Player : MonoBehaviour
     {
+        public event Action<float> OnGravityChanged;
+        
+        
         [Header("[Jump]")]
         [Range(0f, 100f)]
         [SerializeField] private float maxJumpHeight = 4f;
@@ -13,6 +16,10 @@ namespace PlayerMovement
         [SerializeField] private float minJumpHeight = 1f;
         [Range(0f, 10f)]
         [SerializeField] private float timeToJumpApex = 0.4f;
+        [Range(0f, 100f)]
+        [SerializeField] private float apexThreshold = 1f;
+        [Range(0f, 10f)]
+        [SerializeField] private float apexGravityMultiplier = 0.4f;
         [Header("[Movement]")]
         [Range(0f, 100f)]
         [SerializeField] private float moveSpeed = 5f;
@@ -39,6 +46,8 @@ namespace PlayerMovement
         private PlayerController _playerController;
         private PlayerInput _playerInput;
         
+        public Vector2 Velocity => _velocity;
+
         void Start()
         {
             _playerController = GetComponent<PlayerController>();
@@ -116,7 +125,12 @@ namespace PlayerMovement
                 _velocity.x = Mathf.SmoothDamp(_velocity.x, targetVelocityX, ref _velocityXSmoothing, accelerateOrDecelerate);
             }
 
-            _velocity.y += _gravity * Time.fixedDeltaTime; 
+            float atApexPosition = Mathf.InverseLerp(0, apexThreshold, Mathf.Abs(_velocity.y)); 
+            float currentGravity = Mathf.Lerp(_gravity * apexGravityMultiplier, _gravity, atApexPosition);
+            
+            OnGravityChanged?.Invoke(currentGravity);
+            
+            _velocity.y += currentGravity * Time.fixedDeltaTime; 
             
             _playerController.Displacement(_velocity * Time.fixedDeltaTime);
         }
