@@ -2199,18 +2199,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88cd908418af1cd4eb05c10aa7778b7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxJumpHeight: 5
-  minJumpHeight: 0.5
-  timeToJumpApex: 0.4
-  apexThreshold: 10
-  apexGravityMultiplier: 0.4
-  moveSpeed: 5
-  atApexSpeedBonus: 0.4
-  accelerationOnGround: 0.1
-  accelerationInAir: 0.2
-  decelerationOnGround: 0.1
-  decelerationInAir: 0.2
-  maxFallSpeed: 50
+  _playerData: {fileID: 11400000, guid: 11f5d3c4502e835409748d4c8f56aa38, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
