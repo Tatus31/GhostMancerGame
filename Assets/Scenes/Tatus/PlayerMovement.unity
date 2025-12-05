@@ -2205,6 +2205,7 @@ MonoBehaviour:
   apexThreshold: 10
   apexGravityMultiplier: 0.4
   moveSpeed: 5
+  atApexSpeedBonus: 0.2
   accelerationOnGround: 0.1
   accelerationInAir: 0.2
   decelerationOnGround: 0.1

@@ -23,6 +23,8 @@ namespace PlayerMovement
         [Header("[Movement]")]
         [Range(0f, 100f)]
         [SerializeField] private float moveSpeed = 5f;
+        [Range(0f, 1f)]
+        [SerializeField] private float atApexSpeedBonus = 0.2f;
         [Header("[Acceleration/Deceleration]")]
         [Range(0f, 100f)]
         [SerializeField] private float accelerationOnGround = 0.1f;
@@ -110,8 +112,14 @@ namespace PlayerMovement
         }
 
         private void OnPlayerMovement(Vector2 input)
-        {
+        {            
             float targetVelocityX = input.x * moveSpeed;
+            
+            float atApexPosition = Mathf.InverseLerp(0, apexThreshold, Mathf.Abs(_velocity.y));
+            float atApexVelocityBonus = 1f + (atApexPosition * atApexSpeedBonus);
+            
+            targetVelocityX *= atApexVelocityBonus;
+
             float accelerateOrDecelerate;
 
             if (_playerController.GetCollisionInfo.Bottom)
@@ -124,10 +132,8 @@ namespace PlayerMovement
                 accelerateOrDecelerate = (Mathf.Abs(input.x) > 0.01f) ? accelerationInAir : decelerationInAir;
                 _velocity.x = Mathf.SmoothDamp(_velocity.x, targetVelocityX, ref _velocityXSmoothing, accelerateOrDecelerate);
             }
-
-            float atApexPosition = Mathf.InverseLerp(0, apexThreshold, Mathf.Abs(_velocity.y)); 
-            float currentGravity = Mathf.Lerp(_gravity * apexGravityMultiplier, _gravity, atApexPosition);
             
+            float currentGravity = Mathf.Lerp(_gravity * apexGravityMultiplier, _gravity, atApexPosition);
             OnGravityChanged?.Invoke(currentGravity);
             
             _velocity.y += currentGravity * Time.fixedDeltaTime; 
