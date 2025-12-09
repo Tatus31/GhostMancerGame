@@ -24,7 +24,6 @@ namespace PlayerMovement.PlayerData
         [Tooltip("For how long will a jump buffer even if the player clicks the jump button without touching the ground")]
         [Range(0f, 1f)]
         public float jumpBufferMaxTime = 0.1f;
-
         [Header("[Movement]")]
         [Tooltip("The maximum speed the player can achieve")]
         [Range(0f, 100f)]
@@ -32,6 +31,9 @@ namespace PlayerMovement.PlayerData
         [Tooltip("How much faster the player becomes at the apex")]
         [Range(0f, 1f)]
         public float atApexSpeedBonus = 0.2f;
+        [Tooltip("How many seconds of air time you get before you are no longer grounded")]
+        [Range(0f, 1f)]
+        public float coyoteTime = 0.1f;
         [Header("[Acceleration/Deceleration]")]
         [Range(0f, 100f)]
         public float accelerationOnGround = 0.1f;

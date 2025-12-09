@@ -17,8 +17,10 @@ MonoBehaviour:
   timeToJumpApex: 0.4
   apexThreshold: 10
   apexGravityMultiplier: 0.4
+  jumpBufferMaxTime: 0.1
   moveSpeed: 5
   atApexSpeedBonus: 0.4
+  coyoteTime: 0.15
   accelerationOnGround: 0.1
   accelerationInAir: 0.2
   decelerationOnGround: 0.1

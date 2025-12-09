@@ -18,6 +18,7 @@ namespace PlayerMovement
         private float _minJumpVelocity;
         private float _velocityXSmoothing;
         private float _jumpBufferCurrentTime;
+        public float _coyoteTimeCounter;
 
         private Vector2 _velocity;
 
@@ -66,12 +67,24 @@ namespace PlayerMovement
         private void FixedUpdate()
         {
             Vector2 input = _playerInput.MoveInput;
+            
+            bool isGrounded  = _playerController.GetCollisionInfo.Bottom;
+
+            if (isGrounded)
+            {
+                _coyoteTimeCounter = playerData.coyoteTime; 
+            }
+            else
+            {
+                _coyoteTimeCounter = Mathf.Max(0, _coyoteTimeCounter - Time.fixedDeltaTime);
+            }
 
             // Player landed on ground
             if (_playerController.GetCollisionInfo.Bottom || _playerController.GetCollisionInfo.Top)
             {
                 _velocity.y = 0;
                 
+
                 //check if there is a jump buffered
                 if (_startBufferTimer && _jumpBufferCurrentTime <= playerData.jumpBufferMaxTime)
                 {                    
@@ -97,12 +110,15 @@ namespace PlayerMovement
 
         private void OnMaxJump()
         {
-            if (_wasJumpPressed && !_wasJumpReleased && _playerController.GetCollisionInfo.Bottom)
+            bool canJump = _coyoteTimeCounter > 0.02f;
+            
+            if (_wasJumpPressed && !_wasJumpReleased && canJump)
             {
                 _velocity.y = _maxJumpVelocity;
             }
         }
 
+        //Maybe add coyote time to this too? 
         private void OnMaxJumpAfterBuffer()
         {
             _velocity.y = _maxJumpVelocity;
