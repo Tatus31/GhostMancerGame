@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa9e3a30502817d46ac2f942aad413af, type: 3}
   m_Name: DefaultStats
   m_EditorClassIdentifier: 
-  maxJumpHeight: 4
-  minJumpHeight: 1
+  maxJumpHeight: 5
+  minJumpHeight: 0.5
   timeToJumpApex: 0.4
-  apexThreshold: 1
+  apexThreshold: 10
   apexGravityMultiplier: 0.4
   moveSpeed: 5
-  atApexSpeedBonus: 0.2
+  atApexSpeedBonus: 0.4
   accelerationOnGround: 0.1
   accelerationInAir: 0.2
   decelerationOnGround: 0.1
   decelerationInAir: 0.2
-  maxFallSpeed: 10
+  maxFallSpeed: 50
