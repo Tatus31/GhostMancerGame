@@ -1,12 +1,13 @@
 using System;
 using System.Collections;
 using System.Threading.Tasks;
+using Camera;
 using PlayerMovement.PlayerData;
 using UnityEngine;
 
 namespace PlayerMovement
 {
-    [RequireComponent(typeof(PlayerController), typeof(PlayerInput))]
+    [RequireComponent(typeof(PlayerController), typeof(PlayerInput), typeof(PlayerCamera))]
     public class Player : MonoBehaviour
     {
         public event Action<float> OnGravityChanged;
@@ -18,9 +19,10 @@ namespace PlayerMovement
         private float _minJumpVelocity;
         private float _velocityXSmoothing;
         private float _jumpBufferCurrentTime;
-        public float _coyoteTimeCounter;
+        private float _coyoteTimeCounter;
 
         private Vector2 _velocity;
+        private Vector2 _input;
 
         private bool _wasJumpPressed;
         private bool _wasJumpReleased;
@@ -28,6 +30,7 @@ namespace PlayerMovement
 
         private PlayerController _playerController;
         private PlayerInput _playerInput;
+        private PlayerCamera _playerCamera;
 
         public Vector2 Velocity => _velocity;
 
@@ -35,12 +38,15 @@ namespace PlayerMovement
         {
             _playerController = GetComponent<PlayerController>();
             _playerInput = GetComponent<PlayerInput>();
+            _playerCamera = GetComponent<PlayerCamera>();
 
             JumpVariableSetup();
         }
 
         private void Update()
-        {
+        {         
+            _input = _playerInput.MoveInput;
+            
             if (_playerInput.WasJumpPressed)
             {
                 // if(_playerInput.WasJumpPressed && !_playerController.GetCollisionInfo.Bottom)
@@ -66,46 +72,14 @@ namespace PlayerMovement
 
         private void FixedUpdate()
         {
-            Vector2 input = _playerInput.MoveInput;
-            
-            bool isGrounded  = _playerController.GetCollisionInfo.Bottom;
+            HandleCoyoteTime();
+            HandleJumpLogic();
+            OnPlayerMovement(_input);
+        }
 
-            if (isGrounded)
-            {
-                _coyoteTimeCounter = playerData.coyoteTime; 
-            }
-            else
-            {
-                _coyoteTimeCounter = Mathf.Max(0, _coyoteTimeCounter - Time.fixedDeltaTime);
-            }
-
-            // Player landed on ground
-            if (_playerController.GetCollisionInfo.Bottom || _playerController.GetCollisionInfo.Top)
-            {
-                _velocity.y = 0;
-                
-
-                //check if there is a jump buffered
-                if (_startBufferTimer && _jumpBufferCurrentTime <= playerData.jumpBufferMaxTime)
-                {                    
-                    //Debug.Log($"player clicked space {jumpBufferCurrentTime} seconds before landing");
-                    
-                    OnMaxJumpAfterBuffer();
-                    OnVariableJump();
-                    _wasJumpPressed = false;
-                }
-
-                _startBufferTimer = false;
-                _jumpBufferCurrentTime = 0f;
-            }
-
-            OnMaxJump();
-            OnVariableJump();
-
-            _wasJumpPressed = false;
-            _wasJumpReleased = false;
-
-            OnPlayerMovement(input);
+        private void LateUpdate()
+        {
+            HandleCameraLookingUpAndDown(_input);
         }
 
         private void OnMaxJump()
@@ -142,6 +116,65 @@ namespace PlayerMovement
         //         
         //     }
         // }
+
+        private void HandleCoyoteTime()
+        {
+            bool isGrounded  = _playerController.GetCollisionInfo.Bottom;
+
+            if (isGrounded)
+            {
+                _coyoteTimeCounter = playerData.coyoteTime; 
+            }
+            else
+            {
+                _coyoteTimeCounter = Mathf.Max(0, _coyoteTimeCounter - Time.fixedDeltaTime);
+            }
+        }
+
+        private void HandleJumpLogic()
+        {
+            // Player landed on ground
+            if (_playerController.GetCollisionInfo.Bottom || _playerController.GetCollisionInfo.Top)
+            {
+                _velocity.y = 0;
+                
+
+                //check if there is a jump buffered
+                if (_startBufferTimer && _jumpBufferCurrentTime <= playerData.jumpBufferMaxTime)
+                {                    
+                    //Debug.Log($"player clicked space {jumpBufferCurrentTime} seconds before landing");
+                    
+                    OnMaxJumpAfterBuffer();
+                    OnVariableJump();
+                    _wasJumpPressed = false;
+                }
+
+                _startBufferTimer = false;
+                _jumpBufferCurrentTime = 0f;
+            }
+
+            OnMaxJump();
+            OnVariableJump();
+
+            _wasJumpPressed = false;
+            _wasJumpReleased = false;
+        }
+
+        private void HandleCameraLookingUpAndDown(Vector2 input)
+        {
+            if (Mathf.Sign(input.y) == 1 && input.y >= 1)
+            {
+                _playerCamera.MoveCameraUp();
+            }
+            else if (Mathf.Sign(input.y) == -1)
+            {
+                _playerCamera.MoveCameraDown();
+            }
+            else
+            {
+                _playerCamera.ReturnCameraToOriginalPosition();
+            }
+        }
 
         private void OnPlayerMovement(Vector2 input)
         {            
