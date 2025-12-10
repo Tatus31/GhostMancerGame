@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Net.Security;
 using System.Reflection.Emit;
+using UnityEditor;
 using UnityEngine;
 
 namespace PlayerMovement
@@ -47,21 +49,22 @@ namespace PlayerMovement
         [SerializeField] private int maxDescendAngle = 75;
         [SerializeField] private int horizontalRayCount = 4;
         [SerializeField] private int verticalRayCount = 4;
+        [SerializeField] private float maxStepHeight = 2f;
         [SerializeField] private LayerMask collisionLayer;
-        
+
         private float _horizontalRaySpacing;
         private float _verticalRaySpacing;
-        
-        private const float ColliderSkinWidth = 0.1f;
-        
+
+        private const float ColliderSkinWidth = 0.03f;
+
         private BoxCollider2D _playerBoxCollider;
         private RaycastOrigins _raycastOrigins;
         private CollisionInfo _collisionInfo;
-        
+
         public CollisionInfo GetCollisionInfo => _collisionInfo;
 
         private void Start()
-        {            
+        {
             _playerBoxCollider = GetComponent<BoxCollider2D>();
             CalculateRaySpacing();
         }
@@ -86,15 +89,15 @@ namespace PlayerMovement
             {
                 CalculateVerticalCollisions(ref velocity);
             }
-            
+
             transform.Translate(velocity);
         }
-        
+
         private void UpdateRaycastOrigins()
         {
             Bounds bounds = _playerBoxCollider.bounds;
             bounds.Expand(ColliderSkinWidth * -2);
-            
+
             _raycastOrigins.BottomLeft = new Vector2(bounds.min.x, bounds.min.y);
             _raycastOrigins.BottomRight = new Vector2(bounds.max.x, bounds.min.y);
             _raycastOrigins.TopLeft = new Vector2(bounds.min.x, bounds.max.y);
@@ -105,33 +108,34 @@ namespace PlayerMovement
         {
             float dirY = Mathf.Sign(velocity.y);
             float rayLength = Mathf.Abs(velocity.y) + ColliderSkinWidth;
-            
+
             for (int i = 0; i < verticalRayCount; i++)
             {
                 Vector2 rayOrigin = (dirY == -1) ? _raycastOrigins.BottomLeft : _raycastOrigins.TopLeft;
                 rayOrigin += Vector2.right * (_verticalRaySpacing * i);
-                
-                RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up  * dirY, rayLength, collisionLayer);
+
+                RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up * dirY, rayLength, collisionLayer);
 
                 if (hit)
-                {            
+                {
                     velocity.y = (hit.distance - ColliderSkinWidth) * dirY;
                     rayLength = hit.distance;
 
                     if (_collisionInfo.ClimbingSlope)
                     {
-                        velocity.x = velocity.y / Mathf.Tan(_collisionInfo.SlopeAngle * Mathf.Deg2Rad) * Mathf.Sign(velocity.x);
+                        velocity.x = velocity.y / Mathf.Tan(_collisionInfo.SlopeAngle * Mathf.Deg2Rad) *
+                                     Mathf.Sign(velocity.x);
                     }
-                    
+
                     _collisionInfo.Bottom = dirY == -1;
                     _collisionInfo.Top = dirY == 1;
                 }
             }
-            
+
             if (_collisionInfo.ClimbingSlope)
             {
                 float dirX = Mathf.Sign(velocity.x);
-                rayLength  = Mathf.Abs(velocity.x) + ColliderSkinWidth;
+                rayLength = Mathf.Abs(velocity.x) + ColliderSkinWidth;
                 Vector2 rayOrigin = ((dirX == -1) ? _raycastOrigins.BottomLeft : _raycastOrigins.BottomRight);
                 RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * dirX, rayLength, collisionLayer);
 
@@ -146,22 +150,34 @@ namespace PlayerMovement
                 }
             }
         }
-        
+
         private void CalculateHorizontalCollisions(ref Vector2 velocity)
         {
             float dirX = Mathf.Sign(velocity.x);
             float rayLength = Mathf.Abs(velocity.x) + ColliderSkinWidth;
-            
+
             for (int i = 0; i < horizontalRayCount; i++)
             {
                 Vector2 rayOrigin = (dirX == -1) ? _raycastOrigins.BottomLeft : _raycastOrigins.BottomRight;
-                rayOrigin += Vector2.up * (_horizontalRaySpacing * i) ;
-                
+                rayOrigin += Vector2.up * (_horizontalRaySpacing * i);
+
                 RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * dirX, rayLength, collisionLayer);
 
                 // We hit a wall 
                 if (hit)
-                {      
+                {
+                    //We climb up walls
+                    Collider2D wallCollider = hit.collider;
+                    float wallHeight = wallCollider.bounds.max.y - _playerBoxCollider.bounds.min.y;
+                    float pushDistance = 1f;
+
+                    if (wallHeight <= maxStepHeight)
+                    {
+                        velocity.y = wallHeight;
+                        velocity.x = (hit.distance + pushDistance) * dirX;
+                        continue;
+                    }
+
                     float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
                     if (i == 0 && slopeAngle <= maxSlopeAngle)
                     {
@@ -170,13 +186,14 @@ namespace PlayerMovement
                             _collisionInfo.DescendingSlope = false;
                             velocity = _collisionInfo.PreviousVelocity;
                         }
-                        
+
                         float distanceToSlope = 0f;
                         if (!Mathf.Approximately(slopeAngle, _collisionInfo.PreviousSlopeAngle))
                         {
                             distanceToSlope = hit.distance - ColliderSkinWidth;
                             velocity.x -= distanceToSlope * dirX;
                         }
+
                         ClimbSlope(ref velocity, slopeAngle);
                         velocity.x += distanceToSlope * dirX;
                     }
@@ -198,7 +215,7 @@ namespace PlayerMovement
                 }
             }
         }
-
+        
         private void ClimbSlope(ref Vector2 velocity, float slopeAngle)
         {
             float climbDistance = Mathf.Abs(velocity.x);
@@ -208,7 +225,7 @@ namespace PlayerMovement
             {
                 velocity.y = climbVelocityY;
                 velocity.x = Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * climbDistance * Mathf.Sign(velocity.x);
-                
+                    
                 _collisionInfo.Bottom = true;
                 _collisionInfo.ClimbingSlope = true;
                 _collisionInfo.SlopeAngle = slopeAngle;

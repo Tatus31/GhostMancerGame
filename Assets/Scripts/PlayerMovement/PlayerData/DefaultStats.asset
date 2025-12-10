@@ -25,4 +25,6 @@ MonoBehaviour:
   accelerationInAir: 0.2
   decelerationOnGround: 0.1
   decelerationInAir: 0.2
+  accelerationWhileSliding: 0.02
   maxFallSpeed: 50
+  maxMoveSpeed: 10

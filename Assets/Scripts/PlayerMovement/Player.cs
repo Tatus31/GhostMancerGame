@@ -18,6 +18,7 @@ namespace PlayerMovement
         private float _maxJumpVelocity;
         private float _minJumpVelocity;
         private float _velocityXSmoothing;
+        private float _velocitySlideXSmoothing;
         private float _jumpBufferCurrentTime;
         private float _coyoteTimeCounter;
 
@@ -75,6 +76,7 @@ namespace PlayerMovement
             HandleCoyoteTime();
             HandleJumpLogic();
             OnPlayerMovement(_input);
+            ClampVelocity();
         }
 
         private void LateUpdate()
@@ -138,7 +140,6 @@ namespace PlayerMovement
             {
                 _velocity.y = 0;
                 
-
                 //check if there is a jump buffered
                 if (_startBufferTimer && _jumpBufferCurrentTime <= playerData.jumpBufferMaxTime)
                 {                    
@@ -162,11 +163,11 @@ namespace PlayerMovement
 
         private void HandleCameraLookingUpAndDown(Vector2 input)
         {
-            if (Mathf.Sign(input.y) == 1 && input.y >= 1)
+            if (Mathf.Approximately(Mathf.Sign(input.y), 1) && input.y >= 1)
             {
                 _playerCamera.MoveCameraUp();
             }
-            else if (Mathf.Sign(input.y) == -1)
+            else if (Mathf.Approximately(Mathf.Sign(input.y), -1))
             {
                 _playerCamera.MoveCameraDown();
             }
@@ -176,8 +177,14 @@ namespace PlayerMovement
             }
         }
 
+        private void ClampVelocity()
+        {
+            _velocity.y = Mathf.Clamp(_velocity.y,-playerData.maxFallSpeed, playerData.maxFallSpeed );
+            _velocity.x = Mathf.Clamp(_velocity.x,-playerData.maxMoveSpeed, playerData.maxMoveSpeed );
+        }
+
         private void OnPlayerMovement(Vector2 input)
-        {            
+        {
             float targetVelocityX = input.x * playerData.moveSpeed;
             float atApexPosition = 0;
             
@@ -187,9 +194,9 @@ namespace PlayerMovement
                 float atApexVelocityBonus = 1f + (atApexPosition * playerData.atApexSpeedBonus);
                 targetVelocityX *= atApexVelocityBonus;
             }
-            
-            float accelerateOrDecelerate;
 
+            float accelerateOrDecelerate;
+                
             if (_playerController.GetCollisionInfo.Bottom)
             {
                 accelerateOrDecelerate = (Mathf.Abs(input.x) > 0.01f) ? playerData.accelerationOnGround : playerData.decelerationOnGround;
@@ -200,7 +207,7 @@ namespace PlayerMovement
                 accelerateOrDecelerate = (Mathf.Abs(input.x) > 0.01f) ? playerData.accelerationInAir : playerData.decelerationInAir;
                 _velocity.x = Mathf.SmoothDamp(_velocity.x, targetVelocityX, ref _velocityXSmoothing, accelerateOrDecelerate);
             }
-
+            
             float currentGravity = _gravity;
             if (!_playerController.GetCollisionInfo.Bottom)
             {
@@ -210,7 +217,6 @@ namespace PlayerMovement
             OnGravityChanged?.Invoke(currentGravity);
 
             _velocity.y += currentGravity * Time.fixedDeltaTime;
-            _velocity.y = Mathf.Clamp(_velocity.y,-playerData.maxFallSpeed, playerData.maxFallSpeed );
             
             // if(_velocity.y <= maxFallSpeed)
             //     _velocity.y += currentGravity * Time.fixedDeltaTime; 
@@ -230,6 +236,18 @@ namespace PlayerMovement
         private void OnValidate()
         {
             JumpVariableSetup();
+        }
+
+        private void OnDrawGizmos()
+        {
+            //Draw Velocity indicator line
+            
+            Gizmos.color = Color.green;
+            
+            Vector2 start = transform.position;
+            Vector2 end = start + _velocity * 0.2f;
+            
+            Gizmos.DrawLine(start, end);
         }
     }
 }

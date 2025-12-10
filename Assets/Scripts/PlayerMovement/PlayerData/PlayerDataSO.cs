@@ -43,10 +43,15 @@ namespace PlayerMovement.PlayerData
         public float decelerationOnGround = 0.1f;
         [Range(0f, 100f)]
         public float decelerationInAir = 0.2f;
+        [Range(0f, 100f)]
+        public float accelerationWhileSliding = 0.5f;
 
         [Header("[Movement Limits]")]
         [Tooltip("How fast can the player fall")]
         [Range(0f, 100f)]
         public float maxFallSpeed = 10f;
+        [Tooltip("How fast can the player move")]
+        [Range(0f, 100f)]
+        public float maxMoveSpeed = 10f;
     }
 }
