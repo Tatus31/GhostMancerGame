@@ -166,6 +166,7 @@ namespace PlayerMovement
                 // We hit a wall 
                 if (hit)
                 {
+                    //TODO: MAKE THE CLIMB TAKE TIME THEN IT WILL LOOK FINE WITH ANIAMTION
                     //We climb up walls
                     Collider2D wallCollider = hit.collider;
                     float wallHeight = wallCollider.bounds.max.y - _playerBoxCollider.bounds.min.y;
