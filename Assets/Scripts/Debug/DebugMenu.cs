@@ -8,6 +8,7 @@ public class DebugMenu : MonoBehaviour
     [Header("[References]")]
     [SerializeField] private TextMeshProUGUI gravityText;
     [SerializeField] private TextMeshProUGUI velocityText;
+    [SerializeField] private TextMeshProUGUI groundedText;
 
     private float _gravity;
     
@@ -38,8 +39,19 @@ public class DebugMenu : MonoBehaviour
         velocityText.text = _player.Velocity.ToString();
     }
 
+    private void UpdateGroundedState()
+    {
+        if (!_player)
+        {
+            Debug.LogError("No player found in the scene");
+        }
+
+        groundedText.text = _player.WasGrounded.ToString();
+    }
+
     private void Update()
     {
         UpdatePlayerValues();
+        UpdateGroundedState();
     }
 }

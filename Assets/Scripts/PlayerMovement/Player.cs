@@ -30,6 +30,7 @@ namespace PlayerMovement
         private bool _wasJumpReleased;
         private bool _startBufferTimer;
         private bool _isClimbing;
+        private bool _wasGrounded;
         
         private PlayerController _playerController;
         private PlayerInput _playerInput;
@@ -37,6 +38,12 @@ namespace PlayerMovement
         private Sequence _climbSequence;
 
         public Vector2 Velocity => _velocity;
+
+        public bool WasGrounded
+        {
+            get => _wasGrounded;
+            set => _wasGrounded = value;
+        }
 
         private void Start()
         {
@@ -51,7 +58,10 @@ namespace PlayerMovement
 
         private void Update()
         {         
-            _input = _playerInput.MoveInput;
+            if (!_isClimbing)
+            {
+                _input = _playerInput.MoveInput;
+            }
             
             if (_playerInput.WasJumpPressed)
             {
@@ -82,6 +92,8 @@ namespace PlayerMovement
             HandleJumpLogic();
             OnPlayerMovement(_input);
             ClampVelocity();
+            
+            _wasGrounded = _playerController.GetCollisionInfo.Bottom || _playerController.GetCollisionInfo.Top;
         }
 
         private void LateUpdate()
@@ -136,7 +148,7 @@ namespace PlayerMovement
 
         private void HandleLedgeClimb(float height, float distance)
         {
-            if (!_isClimbing)
+            if (!_isClimbing && !_wasGrounded)
             {
                 _ = ClimbLedgeAsync(height, distance);
             }
@@ -145,7 +157,10 @@ namespace PlayerMovement
         private async Task ClimbLedgeAsync(float targetHeight, float targetDistance)
         {
             _isClimbing = true;
-
+            
+            float previousHorizontalVelocity =  _velocity.x;
+            _velocity.y = 0f;
+            
             _climbSequence?.Kill();
 
             Vector2 startPos = transform.position;
@@ -167,6 +182,7 @@ namespace PlayerMovement
                 }
 
                 transform.position = finalTarget;
+                _velocity.x = previousHorizontalVelocity;
             }
             finally
             {
@@ -241,6 +257,11 @@ namespace PlayerMovement
 
         private void OnPlayerMovement(Vector2 input)
         {
+            if (_isClimbing)
+            {
+                return;
+            }
+            
             float targetVelocityX = input.x * playerData.moveSpeed;
             float atApexPosition = 0;
             

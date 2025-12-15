@@ -27,3 +27,8 @@ MonoBehaviour:
   decelerationInAir: 0.2
   maxFallSpeed: 50
   maxMoveSpeed: 15
+  climbVerticalDuration: 0.2
+  climbHorizontalDuration: 0.1
+  horizontalStartPercent: 0.95
+  climbVerticalEase: 7
+  climbHorizontalEase: 1

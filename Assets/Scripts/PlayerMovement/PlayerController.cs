@@ -53,6 +53,7 @@ namespace PlayerMovement
         [SerializeField] private int verticalRayCount = 4;
         [Header("[Ledge CLimb]")]
         [SerializeField] private float maxStepHeight = 2f;
+        [SerializeField] private float minStepHeight = 0.2f;
         [Header("[LayerMask]")]
         [SerializeField] private LayerMask collisionLayer;
 
@@ -62,7 +63,7 @@ namespace PlayerMovement
         private bool _isSteppingUp;
         private Sequence _climbSequence;
 
-        private const float ColliderSkinWidth = 0.22f;
+        private const float ColliderSkinWidth = 0.05f;
 
         private BoxCollider2D _playerBoxCollider;
         private RaycastOrigins _raycastOrigins;
@@ -182,14 +183,15 @@ namespace PlayerMovement
                 if (hit)
                 {
                     Collider2D wallCollider = hit.collider;
-                    float wallHeight = wallCollider.bounds.max.y - _playerBoxCollider.bounds.min.y;
-                    float pushDistance = 1.2f;
+                    float wallHeightBonus = 0.1f;
+                    float wallHeight = wallCollider.bounds.max.y - (_playerBoxCollider.bounds.min.y + hit.distance) + wallHeightBonus;
+                    float pushDistance = 0.5f;
 
-                    if (wallHeight <= maxStepHeight && !_isSteppingUp)
+                    if (wallHeight <= maxStepHeight && wallHeight >= minStepHeight && !_isSteppingUp)
                     {
-                        float targetDistance = (hit.distance + pushDistance) * dirX;
+                        Debug.Log($"wallHeight: {wallHeight} wallCollider.bounds.max.y: {wallCollider.bounds.max.y} - _playerBoxCollider.bounds.min.y: {_playerBoxCollider.bounds.min.y}");
+                        float targetDistance = pushDistance * dirX;
                         OnLedgeDetected?.Invoke(wallHeight, targetDistance);
-                        continue;
                     }
 
                     float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
