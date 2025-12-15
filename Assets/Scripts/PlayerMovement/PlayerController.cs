@@ -1,9 +1,6 @@
-using System;
-using System.Collections;
-using System.Net.Security;
-using System.Reflection.Emit;
-using UnityEditor;
+using System.Threading.Tasks;
 using UnityEngine;
+using DG.Tweening;
 
 namespace PlayerMovement
 {
@@ -16,6 +13,22 @@ namespace PlayerMovement
             public Vector2 BottomRight;
             public Vector2 TopLeft;
             public Vector2 TopRight;
+        }
+
+        public struct LedgeStepInfo
+        {
+            public bool CanStep;
+            public float Height;
+            public float Distance;
+            public Vector2 Normal;
+
+            public void Reset()
+            {
+                CanStep = false;
+                Height = 0f;
+                Distance = 0f;
+                Normal = Vector2.zero;
+            }
         }
 
         public struct CollisionInfo
@@ -45,33 +58,59 @@ namespace PlayerMovement
             }
         }
 
+        [Header("[Slope]")]
         [SerializeField] private int maxSlopeAngle = 75;
         [SerializeField] private int maxDescendAngle = 75;
+        [Header("[Collision Rays]")]
         [SerializeField] private int horizontalRayCount = 4;
         [SerializeField] private int verticalRayCount = 4;
+        [Header("[Ledge CLimb]")]
         [SerializeField] private float maxStepHeight = 2f;
+        [SerializeField] private float climbVerticalDuration = 0.12f;
+        [SerializeField] private float climbHorizontalDuration = 0.08f;
+        [SerializeField] [Range(0f, 1f)] private float horizontalStartPercent = 0.65f;
+        [Header("[DoTween Ledge Easing]")]
+        [SerializeField] private Ease climbVerticalEase = Ease.InOutQuad;
+        [SerializeField] private Ease climbHorizontalEase = Ease.Linear;
+        [Header("[LayerMask]")]
         [SerializeField] private LayerMask collisionLayer;
 
         private float _horizontalRaySpacing;
         private float _verticalRaySpacing;
 
-        private const float ColliderSkinWidth = 0.03f;
+        private bool _isSteppingUp;
+        private Sequence _climbSequence;
+
+        private const float ColliderSkinWidth = 0.22f;
 
         private BoxCollider2D _playerBoxCollider;
         private RaycastOrigins _raycastOrigins;
         private CollisionInfo _collisionInfo;
+        private LedgeStepInfo _ledgeStepInfo;
 
         public CollisionInfo GetCollisionInfo => _collisionInfo;
-
+        public LedgeStepInfo GetLedgeStepInfo => _ledgeStepInfo;
+        
         private void Start()
         {
             _playerBoxCollider = GetComponent<BoxCollider2D>();
             CalculateRaySpacing();
         }
 
+        private void OnDestroy()
+        {
+            _climbSequence?.Kill();
+        }
+
         public void Displacement(Vector2 velocity)
         {
+            if (_isSteppingUp)
+            {
+                return;
+            }
+            
             UpdateRaycastOrigins();
+            _ledgeStepInfo.Reset();
             _collisionInfo.ResetCollisions();
             _collisionInfo.PreviousVelocity = velocity;
 
@@ -123,8 +162,7 @@ namespace PlayerMovement
 
                     if (_collisionInfo.ClimbingSlope)
                     {
-                        velocity.x = velocity.y / Mathf.Tan(_collisionInfo.SlopeAngle * Mathf.Deg2Rad) *
-                                     Mathf.Sign(velocity.x);
+                        velocity.x = velocity.y / Mathf.Tan(_collisionInfo.SlopeAngle * Mathf.Deg2Rad) * Mathf.Sign(velocity.x);
                     }
 
                     _collisionInfo.Bottom = dirY == -1;
@@ -163,19 +201,17 @@ namespace PlayerMovement
 
                 RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * dirX, rayLength, collisionLayer);
 
-                // We hit a wall 
                 if (hit)
                 {
-                    //TODO: MAKE THE CLIMB TAKE TIME THEN IT WILL LOOK FINE WITH ANIAMTION
-                    //We climb up walls
                     Collider2D wallCollider = hit.collider;
                     float wallHeight = wallCollider.bounds.max.y - _playerBoxCollider.bounds.min.y;
-                    float pushDistance = 1f;
+                    float pushDistance = 1.2f;
 
-                    if (wallHeight <= maxStepHeight)
+                    if (wallHeight <= maxStepHeight && !_isSteppingUp)
                     {
-                        velocity.y = wallHeight;
-                        velocity.x = (hit.distance + pushDistance) * dirX;
+                        float targetDistance = (hit.distance + pushDistance) * dirX;
+                        
+                        _ = ClimbLedgeAsync(wallHeight, targetDistance);
                         continue;
                     }
 
@@ -199,7 +235,6 @@ namespace PlayerMovement
                         velocity.x += distanceToSlope * dirX;
                     }
 
-                    //We hit a wall while climbing slope
                     if (!_collisionInfo.ClimbingSlope || slopeAngle > maxSlopeAngle)
                     {
                         velocity.x = (hit.distance - ColliderSkinWidth) * dirX;
@@ -214,6 +249,39 @@ namespace PlayerMovement
                         _collisionInfo.Right = dirX == 1;
                     }
                 }
+            }
+        }
+        
+        private async Task ClimbLedgeAsync(float targetHeight, float targetDistance)
+        {
+            _isSteppingUp = true;
+
+            _climbSequence?.Kill();
+
+            Vector2 startPos = transform.position;
+            Vector2 verticalTarget = startPos + Vector2.up * targetHeight;
+            Vector2 finalTarget = verticalTarget + Vector2.right * targetDistance;
+
+            try
+            {
+                _climbSequence = DOTween.Sequence();
+
+                _climbSequence.Append(transform.DOMoveY(verticalTarget.y, climbVerticalDuration).SetEase(climbVerticalEase));
+
+                float horizontalDelay = climbVerticalDuration * horizontalStartPercent;
+                _climbSequence.Insert(horizontalDelay,transform.DOMoveX(finalTarget.x, climbHorizontalDuration).SetEase(climbHorizontalEase));
+                
+                while (_climbSequence != null && _climbSequence.IsActive() && !_climbSequence.IsComplete())
+                {
+                    await Task.Yield();
+                }
+
+                transform.position = finalTarget;
+            }
+            finally
+            {
+                _climbSequence = null;
+                _isSteppingUp = false;
             }
         }
         
@@ -267,11 +335,9 @@ namespace PlayerMovement
             Bounds bounds = _playerBoxCollider.bounds;
             bounds.Expand(ColliderSkinWidth * -2);
             
-            //At least 2 rays
             horizontalRayCount = Mathf.Clamp(horizontalRayCount, 2, int.MaxValue);
             verticalRayCount = Mathf.Clamp(verticalRayCount, 2, int.MaxValue);
             
-            //N rays (N - 1) gaps 
             _horizontalRaySpacing  = bounds.size.y / (horizontalRayCount - 1);
             _verticalRaySpacing  = bounds.size.x / (verticalRayCount - 1);
         }
@@ -284,7 +350,6 @@ namespace PlayerMovement
             UpdateRaycastOrigins();
             CalculateRaySpacing();
 
-            //Debug.Log($"{_playerBoxCollider} drawing rays with spacing {_verticalRaySpacing} amount of rays {verticalRayCount}");
             for (int i = 0; i < verticalRayCount; i++)
             {
                 Debug.DrawRay(_raycastOrigins.BottomLeft + Vector2.right * _verticalRaySpacing * i, Vector3.down * 2,  Color.red); 
@@ -294,9 +359,6 @@ namespace PlayerMovement
             {
                 Debug.DrawRay(_raycastOrigins.BottomRight + Vector2.up * _horizontalRaySpacing * i, Vector3.right * 2,  Color.red); 
             }
-
         }
     }
-} 
-
-
+}

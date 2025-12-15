@@ -100,6 +100,7 @@ GameObject:
   - component: {fileID: 5046409663878976892}
   - component: {fileID: 3438032564891957296}
   - component: {fileID: 8756998630026383522}
+  - component: {fileID: 1131669675286575535}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -117,8 +118,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.5, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1.3, y: 1.3, z: 1.3}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4647259330696229392}
   m_Father: {fileID: 0}
@@ -183,8 +184,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxSlopeAngle: 75
   maxDescendAngle: 75
-  horizontalRayCount: 4
-  verticalRayCount: 4
+  horizontalRayCount: 12
+  verticalRayCount: 12
+  maxStepHeight: 2
+  climbVerticalDuration: 0.2
+  climbHorizontalDuration: 0.12
+  horizontalStartPercent: 0.65
+  climbVerticalEase: 7
+  climbHorizontalEase: 1
   collisionLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -213,3 +220,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerData: {fileID: 11400000, guid: 11f5d3c4502e835409748d4c8f56aa38, type: 2}
+--- !u!114 &1131669675286575535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7081060072289744566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a262c82e8d6e9c40a56c9e283dd84c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cinemachinePositionComposer: {fileID: 0}
+  minCameraOffset: -5
+  maxCameraOffset: 5
+  cameraOffsetSpeed: 2

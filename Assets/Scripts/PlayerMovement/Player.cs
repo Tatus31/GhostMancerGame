@@ -83,7 +83,7 @@ namespace PlayerMovement
         {
             HandleCameraLookingUpAndDown(_input);
         }
-
+        
         private void OnMaxJump()
         {
             bool canJump = _coyoteTimeCounter > 0.02f;
@@ -121,7 +121,7 @@ namespace PlayerMovement
 
         private void HandleCoyoteTime()
         {
-            bool isGrounded  = _playerController.GetCollisionInfo.Bottom;
+            bool isGrounded = _playerController.GetCollisionInfo.Bottom;
 
             if (isGrounded)
             {
