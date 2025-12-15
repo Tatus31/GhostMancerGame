@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Threading.Tasks;
 using Camera;
+using DG.Tweening;
 using PlayerMovement.PlayerData;
 using UnityEngine;
 
@@ -28,18 +29,22 @@ namespace PlayerMovement
         private bool _wasJumpPressed;
         private bool _wasJumpReleased;
         private bool _startBufferTimer;
-
+        private bool _isClimbing;
+        
         private PlayerController _playerController;
         private PlayerInput _playerInput;
         private PlayerCamera _playerCamera;
+        private Sequence _climbSequence;
 
         public Vector2 Velocity => _velocity;
 
-        void Start()
+        private void Start()
         {
             _playerController = GetComponent<PlayerController>();
             _playerInput = GetComponent<PlayerInput>();
             _playerCamera = GetComponent<PlayerCamera>();
+
+            _playerController.OnLedgeDetected += HandleLedgeClimb;
 
             JumpVariableSetup();
         }
@@ -83,7 +88,17 @@ namespace PlayerMovement
         {
             HandleCameraLookingUpAndDown(_input);
         }
-        
+
+        private void OnDestroy()
+        {
+            if (_playerController)
+            {
+                _playerController.OnLedgeDetected -= HandleLedgeClimb;
+            }
+            
+            _climbSequence?.Kill();
+        }
+
         private void OnMaxJump()
         {
             bool canJump = _coyoteTimeCounter > 0.02f;
@@ -119,6 +134,47 @@ namespace PlayerMovement
         //     }
         // }
 
+        private void HandleLedgeClimb(float height, float distance)
+        {
+            if (!_isClimbing)
+            {
+                _ = ClimbLedgeAsync(height, distance);
+            }
+        }
+        
+        private async Task ClimbLedgeAsync(float targetHeight, float targetDistance)
+        {
+            _isClimbing = true;
+
+            _climbSequence?.Kill();
+
+            Vector2 startPos = transform.position;
+            Vector2 verticalTarget = startPos + Vector2.up * targetHeight;
+            Vector2 finalTarget = verticalTarget + Vector2.right * targetDistance;
+
+            try
+            {
+                _climbSequence = DOTween.Sequence();
+
+                _climbSequence.Append(transform.DOMoveY(verticalTarget.y, playerData.climbVerticalDuration).SetEase(playerData.climbVerticalEase));
+
+                float horizontalDelay = playerData.climbVerticalDuration * playerData.horizontalStartPercent;
+                _climbSequence.Insert(horizontalDelay,transform.DOMoveX(finalTarget.x, playerData.climbHorizontalDuration).SetEase(playerData.climbHorizontalEase));
+                
+                while (_climbSequence != null && _climbSequence.IsActive() && !_climbSequence.IsComplete())
+                {
+                    await Task.Yield();
+                }
+
+                transform.position = finalTarget;
+            }
+            finally
+            {
+                _climbSequence = null;
+                _isClimbing = false;
+            }
+        }
+        
         private void HandleCoyoteTime()
         {
             bool isGrounded = _playerController.GetCollisionInfo.Bottom;

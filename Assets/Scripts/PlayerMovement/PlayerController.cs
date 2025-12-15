@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 using DG.Tweening;
@@ -7,6 +8,8 @@ namespace PlayerMovement
     [RequireComponent(typeof(BoxCollider2D))]
     public class PlayerController : MonoBehaviour
     {
+        public event Action<float, float> OnLedgeDetected;
+        
         private struct RaycastOrigins
         {
             public Vector2 BottomLeft;
@@ -14,23 +17,7 @@ namespace PlayerMovement
             public Vector2 TopLeft;
             public Vector2 TopRight;
         }
-
-        public struct LedgeStepInfo
-        {
-            public bool CanStep;
-            public float Height;
-            public float Distance;
-            public Vector2 Normal;
-
-            public void Reset()
-            {
-                CanStep = false;
-                Height = 0f;
-                Distance = 0f;
-                Normal = Vector2.zero;
-            }
-        }
-
+        
         public struct CollisionInfo
         {
             public bool Left;
@@ -66,12 +53,6 @@ namespace PlayerMovement
         [SerializeField] private int verticalRayCount = 4;
         [Header("[Ledge CLimb]")]
         [SerializeField] private float maxStepHeight = 2f;
-        [SerializeField] private float climbVerticalDuration = 0.12f;
-        [SerializeField] private float climbHorizontalDuration = 0.08f;
-        [SerializeField] [Range(0f, 1f)] private float horizontalStartPercent = 0.65f;
-        [Header("[DoTween Ledge Easing]")]
-        [SerializeField] private Ease climbVerticalEase = Ease.InOutQuad;
-        [SerializeField] private Ease climbHorizontalEase = Ease.Linear;
         [Header("[LayerMask]")]
         [SerializeField] private LayerMask collisionLayer;
 
@@ -86,10 +67,8 @@ namespace PlayerMovement
         private BoxCollider2D _playerBoxCollider;
         private RaycastOrigins _raycastOrigins;
         private CollisionInfo _collisionInfo;
-        private LedgeStepInfo _ledgeStepInfo;
 
         public CollisionInfo GetCollisionInfo => _collisionInfo;
-        public LedgeStepInfo GetLedgeStepInfo => _ledgeStepInfo;
         
         private void Start()
         {
@@ -110,7 +89,6 @@ namespace PlayerMovement
             }
             
             UpdateRaycastOrigins();
-            _ledgeStepInfo.Reset();
             _collisionInfo.ResetCollisions();
             _collisionInfo.PreviousVelocity = velocity;
 
@@ -210,8 +188,7 @@ namespace PlayerMovement
                     if (wallHeight <= maxStepHeight && !_isSteppingUp)
                     {
                         float targetDistance = (hit.distance + pushDistance) * dirX;
-                        
-                        _ = ClimbLedgeAsync(wallHeight, targetDistance);
+                        OnLedgeDetected?.Invoke(wallHeight, targetDistance);
                         continue;
                     }
 
@@ -249,39 +226,6 @@ namespace PlayerMovement
                         _collisionInfo.Right = dirX == 1;
                     }
                 }
-            }
-        }
-        
-        private async Task ClimbLedgeAsync(float targetHeight, float targetDistance)
-        {
-            _isSteppingUp = true;
-
-            _climbSequence?.Kill();
-
-            Vector2 startPos = transform.position;
-            Vector2 verticalTarget = startPos + Vector2.up * targetHeight;
-            Vector2 finalTarget = verticalTarget + Vector2.right * targetDistance;
-
-            try
-            {
-                _climbSequence = DOTween.Sequence();
-
-                _climbSequence.Append(transform.DOMoveY(verticalTarget.y, climbVerticalDuration).SetEase(climbVerticalEase));
-
-                float horizontalDelay = climbVerticalDuration * horizontalStartPercent;
-                _climbSequence.Insert(horizontalDelay,transform.DOMoveX(finalTarget.x, climbHorizontalDuration).SetEase(climbHorizontalEase));
-                
-                while (_climbSequence != null && _climbSequence.IsActive() && !_climbSequence.IsComplete())
-                {
-                    await Task.Yield();
-                }
-
-                transform.position = finalTarget;
-            }
-            finally
-            {
-                _climbSequence = null;
-                _isSteppingUp = false;
             }
         }
         

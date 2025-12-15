@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 namespace PlayerMovement.PlayerData
@@ -50,5 +51,12 @@ namespace PlayerMovement.PlayerData
         [Tooltip("How fast can the player move")]
         [Range(0f, 100f)]
         public float maxMoveSpeed = 10f;
+        public float climbVerticalDuration = 0.12f;
+        public float climbHorizontalDuration = 0.08f;
+        [Range(0f, 1f)] 
+        public float horizontalStartPercent = 0.65f;
+        [Header("[DoTween Ledge Easing]")]
+        public Ease climbVerticalEase = Ease.InOutQuad;
+        public Ease climbHorizontalEase = Ease.Linear;
     }
 }
