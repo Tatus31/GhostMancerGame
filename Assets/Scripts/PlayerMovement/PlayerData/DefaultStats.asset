@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa9e3a30502817d46ac2f942aad413af, type: 3}
+  m_Name: DefaultStats
+  m_EditorClassIdentifier: 
+  maxJumpHeight: 7
+  minJumpHeight: 0.5
+  timeToJumpApex: 0.5
+  apexThreshold: 10
+  apexGravityMultiplier: 0.4
+  jumpBufferMaxTime: 0.1
+  moveSpeed: 5
+  atApexSpeedBonus: 0.75
+  coyoteTime: 0.15
+  accelerationOnGround: 0.1
+  accelerationInAir: 0.2
+  decelerationOnGround: 0.1
+  decelerationInAir: 0.2
+  maxFallSpeed: 50
+  maxMoveSpeed: 15
+  climbVerticalDuration: 0.2
+  climbHorizontalDuration: 0.1
+  horizontalStartPercent: 0.95
+  climbVerticalEase: 7
+  climbHorizontalEase: 1
