@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Camera;
 using DG.Tweening;
@@ -11,9 +12,22 @@ namespace PlayerMovement
     [RequireComponent(typeof(PlayerController), typeof(PlayerInput), typeof(PlayerCamera))]
     public class Player : MonoBehaviour
     {
-        public event Action<float> OnGravityChanged;
-
+#if UNITY_EDITOR
+        public event Action<float> OnGravityChangedDebug;
+        public event Action<TalismanInputs> OnTalismanInputsDebug;
+        public event Action OnTalismanResetDebug;
+        
+#endif
+        public enum TalismanInputs
+        {
+            Up,
+            Down,
+            Left,
+            Right,
+        }
+        
         [SerializeField] private PlayerDataSO playerData;
+        [SerializeField] private TalismanCombinationSO[] equippedTalismans;
 
         private float _gravity;
         private float _maxJumpVelocity;
@@ -22,6 +36,7 @@ namespace PlayerMovement
         private float _velocitySlideXSmoothing;
         private float _jumpBufferCurrentTime;
         private float _coyoteTimeCounter;
+        private float _talismanTimer;
 
         private Vector2 _velocity;
         private Vector2 _input;
@@ -36,6 +51,11 @@ namespace PlayerMovement
         private PlayerInput _playerInput;
         private PlayerCamera _playerCamera;
         private Sequence _climbSequence;
+        private Coroutine _talismanTimerCoroutine = null;
+        
+        private TalismanInputs? _previousTalismanInputs = null;
+
+        private List<TalismanInputs> _currentTalismanCombination;
 
         public Vector2 Velocity => _velocity;
 
@@ -53,6 +73,8 @@ namespace PlayerMovement
 
             _playerController.OnLedgeDetected += HandleLedgeClimb;
 
+            _currentTalismanCombination = new List<TalismanInputs>();
+
             JumpVariableSetup();
         }
 
@@ -62,6 +84,8 @@ namespace PlayerMovement
             {
                 _input = _playerInput.MoveInput;
             }
+
+            HandleTalismanInputs();
             
             if (_playerInput.WasJumpPressed)
             {
@@ -119,6 +143,120 @@ namespace PlayerMovement
             {
                 _velocity.y = _maxJumpVelocity;
             }
+        }
+
+        private void HandleTalismanInputs()
+        {
+            
+            if (_currentTalismanCombination.Count > 3)
+            {
+                return;
+            }
+            
+            if (_playerInput.WasTalismanUpPressed)
+            {
+                _playerInput.WasTalismanUpPressed = false;
+                OnTalismanInputsDebug?.Invoke(TalismanInputs.Up);
+                _currentTalismanCombination.Add(TalismanInputs.Up);
+                StartTalismanTimer(TalismanInputs.Up);
+                HandleTalismanCombinations();
+            }
+            
+            if (_playerInput.WasTalismanDownPressed)
+            {
+                _playerInput.WasTalismanDownPressed = false;
+                OnTalismanInputsDebug?.Invoke(TalismanInputs.Down);
+                _currentTalismanCombination.Add(TalismanInputs.Down);
+                StartTalismanTimer(TalismanInputs.Down);
+                HandleTalismanCombinations();
+            }
+            
+            if (_playerInput.WasTalismanLeftPressed)
+            {
+                _playerInput.WasTalismanLeftPressed = false;
+                OnTalismanInputsDebug?.Invoke(TalismanInputs.Left);
+                _currentTalismanCombination.Add(TalismanInputs.Left);
+                StartTalismanTimer(TalismanInputs.Left);
+                HandleTalismanCombinations();
+            }
+            
+            if (_playerInput.WasTalismanRightPressed)
+            {
+                _playerInput.WasTalismanRightPressed = false;
+                OnTalismanInputsDebug?.Invoke(TalismanInputs.Right);
+                _currentTalismanCombination.Add(TalismanInputs.Right);
+                StartTalismanTimer(TalismanInputs.Right);
+                HandleTalismanCombinations();
+            }
+        }
+
+        private void HandleTalismanCombinations()
+        {
+            if (_currentTalismanCombination.Count <= 1)
+            {
+                return;
+            }
+
+            for (int y = 0; y < equippedTalismans.Length; y++)
+            {
+                if (_currentTalismanCombination.Count != equippedTalismans[y].talismanInputs.Count)
+                {
+                    continue;
+                }
+
+                bool allMatch = true;
+                for (int i = 0; i < _currentTalismanCombination.Count; i++)
+                {
+                    if (_currentTalismanCombination[i] != equippedTalismans[y].talismanInputs[i])
+                    {
+                        allMatch = false;
+                        break;
+                    }
+                }
+
+                if (allMatch)
+                {
+                    Debug.Log($"activating talisman name: {equippedTalismans[y].talismanName}");
+                    _currentTalismanCombination.Clear();
+                    return;
+                }
+            }
+        }
+        
+        private void StartTalismanTimer(TalismanInputs talismanInputs)
+        {
+            if (_previousTalismanInputs == talismanInputs)
+            {
+                return;
+            }
+
+            _previousTalismanInputs = talismanInputs;
+
+            if (_talismanTimerCoroutine != null)
+            {
+                StopCoroutine(_talismanTimerCoroutine);
+            }
+
+            _talismanTimerCoroutine = StartCoroutine(TalismanTimerCoroutine());
+        }
+
+        private IEnumerator TalismanTimerCoroutine()
+        {
+            float timer = playerData.talismanResetTimer;
+
+            while (timer >= 0.01f)
+            {
+                timer -= Time.deltaTime;
+                yield return null;
+            }
+            
+            _playerInput.OnResetAllTalismans();
+            Debug.Log("reset all talismans");
+            _previousTalismanInputs = null;
+            _talismanTimerCoroutine = null;
+            _currentTalismanCombination.Clear();
+            
+            OnTalismanResetDebug?.Invoke();
         }
 
         //Maybe add coyote time to this too? 
@@ -291,7 +429,7 @@ namespace PlayerMovement
                 currentGravity = Mathf.Lerp(_gravity * playerData.apexGravityMultiplier, _gravity, atApexPosition);
             }
 
-            OnGravityChanged?.Invoke(currentGravity);
+            OnGravityChangedDebug?.Invoke(currentGravity);
 
             _velocity.y += currentGravity * Time.fixedDeltaTime;
             

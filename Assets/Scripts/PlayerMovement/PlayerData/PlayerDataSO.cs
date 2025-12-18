@@ -58,5 +58,7 @@ namespace PlayerMovement.PlayerData
         [Header("[DoTween Ledge Easing]")]
         public Ease climbVerticalEase = Ease.InOutQuad;
         public Ease climbHorizontalEase = Ease.Linear;
+        [Header("[Talismans]")]
+        public float talismanResetTimer = 2f;
     }
 }

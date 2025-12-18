@@ -124,7 +124,7 @@ namespace Game.Input
                     ""name"": ""Interact"",
                     ""type"": ""Button"",
                     ""id"": ""852140f2-7766-474d-8707-702459ba45f3"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": ""Hold"",
                     ""initialStateCheck"": false
@@ -133,7 +133,7 @@ namespace Game.Input
                     ""name"": ""Crouch"",
                     ""type"": ""Button"",
                     ""id"": ""27c5f898-bc57-4ee1-8800-db469aca5fe3"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -142,7 +142,7 @@ namespace Game.Input
                     ""name"": ""Jump"",
                     ""type"": ""Button"",
                     ""id"": ""f1ba0d36-48eb-4cd5-b651-1c94a6531f70"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -151,7 +151,7 @@ namespace Game.Input
                     ""name"": ""Previous"",
                     ""type"": ""Button"",
                     ""id"": ""2776c80d-3c14-4091-8c56-d04ced07a2b0"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -160,7 +160,7 @@ namespace Game.Input
                     ""name"": ""Next"",
                     ""type"": ""Button"",
                     ""id"": ""b7230bb6-fc9b-4f52-8b25-f5e19cb2c2ba"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -169,7 +169,43 @@ namespace Game.Input
                     ""name"": ""Sprint"",
                     ""type"": ""Button"",
                     ""id"": ""641cd816-40e6-41b4-8c3d-04687c349290"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""TalismanActionUp"",
+                    ""type"": ""Button"",
+                    ""id"": ""108e2594-210c-4493-ab0f-5a42a2c89aeb"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""TalismanActionLeft"",
+                    ""type"": ""Button"",
+                    ""id"": ""8f071f20-42c2-4815-b210-11b9b44a83fe"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""TalismanActionRight"",
+                    ""type"": ""Button"",
+                    ""id"": ""6419b534-4cbc-4846-8f23-423989eca2f8"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""TalismanActionDown"",
+                    ""type"": ""Button"",
+                    ""id"": ""2df57a71-748c-45aa-9171-14b6d15d1d44"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -210,31 +246,9 @@ namespace Game.Input
                     ""isPartOfComposite"": true
                 },
                 {
-                    ""name"": ""up"",
-                    ""id"": ""8180e8bd-4097-4f4e-ab88-4523101a6ce9"",
-                    ""path"": ""<Keyboard>/upArrow"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""Move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
                     ""name"": ""down"",
                     ""id"": ""320bffee-a40b-4347-ac70-c210eb8bc73a"",
                     ""path"": ""<Keyboard>/s"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""Move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""down"",
-                    ""id"": ""1c5327b5-f71c-4f60-99c7-4e737386f1d1"",
-                    ""path"": ""<Keyboard>/downArrow"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
@@ -254,31 +268,9 @@ namespace Game.Input
                     ""isPartOfComposite"": true
                 },
                 {
-                    ""name"": ""left"",
-                    ""id"": ""2e46982e-44cc-431b-9f0b-c11910bf467a"",
-                    ""path"": ""<Keyboard>/leftArrow"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""Move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
                     ""name"": ""right"",
                     ""id"": ""fcfe95b8-67b9-4526-84b5-5d0bc98d6400"",
                     ""path"": ""<Keyboard>/d"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""Move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""right"",
-                    ""id"": ""77bff152-3580-4b21-b6de-dcd0c7e41164"",
-                    ""path"": ""<Keyboard>/rightArrow"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
@@ -569,6 +561,50 @@ namespace Game.Input
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""Crouch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d528eb4c-4448-4afe-bba4-381e17507262"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""TalismanActionUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""424444ed-133d-4720-8348-a3c58c8f4992"",
+                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""TalismanActionLeft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0aadfeaa-b9e5-4898-a2a4-7e730622f136"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""TalismanActionRight"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""80eb406e-66ec-457e-b54b-157023139f45"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""TalismanActionDown"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1165,6 +1201,10 @@ namespace Game.Input
             m_Player_Previous = m_Player.FindAction("Previous", throwIfNotFound: true);
             m_Player_Next = m_Player.FindAction("Next", throwIfNotFound: true);
             m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
+            m_Player_TalismanActionUp = m_Player.FindAction("TalismanActionUp", throwIfNotFound: true);
+            m_Player_TalismanActionLeft = m_Player.FindAction("TalismanActionLeft", throwIfNotFound: true);
+            m_Player_TalismanActionRight = m_Player.FindAction("TalismanActionRight", throwIfNotFound: true);
+            m_Player_TalismanActionDown = m_Player.FindAction("TalismanActionDown", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
             m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1267,6 +1307,10 @@ namespace Game.Input
         private readonly InputAction m_Player_Previous;
         private readonly InputAction m_Player_Next;
         private readonly InputAction m_Player_Sprint;
+        private readonly InputAction m_Player_TalismanActionUp;
+        private readonly InputAction m_Player_TalismanActionLeft;
+        private readonly InputAction m_Player_TalismanActionRight;
+        private readonly InputAction m_Player_TalismanActionDown;
         /// <summary>
         /// Provides access to input actions defined in input action map "Player".
         /// </summary>
@@ -1314,6 +1358,22 @@ namespace Game.Input
             /// Provides access to the underlying input action "Player/Sprint".
             /// </summary>
             public InputAction @Sprint => m_Wrapper.m_Player_Sprint;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/TalismanActionUp".
+            /// </summary>
+            public InputAction @TalismanActionUp => m_Wrapper.m_Player_TalismanActionUp;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/TalismanActionLeft".
+            /// </summary>
+            public InputAction @TalismanActionLeft => m_Wrapper.m_Player_TalismanActionLeft;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/TalismanActionRight".
+            /// </summary>
+            public InputAction @TalismanActionRight => m_Wrapper.m_Player_TalismanActionRight;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/TalismanActionDown".
+            /// </summary>
+            public InputAction @TalismanActionDown => m_Wrapper.m_Player_TalismanActionDown;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -1367,6 +1427,18 @@ namespace Game.Input
                 @Sprint.started += instance.OnSprint;
                 @Sprint.performed += instance.OnSprint;
                 @Sprint.canceled += instance.OnSprint;
+                @TalismanActionUp.started += instance.OnTalismanActionUp;
+                @TalismanActionUp.performed += instance.OnTalismanActionUp;
+                @TalismanActionUp.canceled += instance.OnTalismanActionUp;
+                @TalismanActionLeft.started += instance.OnTalismanActionLeft;
+                @TalismanActionLeft.performed += instance.OnTalismanActionLeft;
+                @TalismanActionLeft.canceled += instance.OnTalismanActionLeft;
+                @TalismanActionRight.started += instance.OnTalismanActionRight;
+                @TalismanActionRight.performed += instance.OnTalismanActionRight;
+                @TalismanActionRight.canceled += instance.OnTalismanActionRight;
+                @TalismanActionDown.started += instance.OnTalismanActionDown;
+                @TalismanActionDown.performed += instance.OnTalismanActionDown;
+                @TalismanActionDown.canceled += instance.OnTalismanActionDown;
             }
 
             /// <summary>
@@ -1405,6 +1477,18 @@ namespace Game.Input
                 @Sprint.started -= instance.OnSprint;
                 @Sprint.performed -= instance.OnSprint;
                 @Sprint.canceled -= instance.OnSprint;
+                @TalismanActionUp.started -= instance.OnTalismanActionUp;
+                @TalismanActionUp.performed -= instance.OnTalismanActionUp;
+                @TalismanActionUp.canceled -= instance.OnTalismanActionUp;
+                @TalismanActionLeft.started -= instance.OnTalismanActionLeft;
+                @TalismanActionLeft.performed -= instance.OnTalismanActionLeft;
+                @TalismanActionLeft.canceled -= instance.OnTalismanActionLeft;
+                @TalismanActionRight.started -= instance.OnTalismanActionRight;
+                @TalismanActionRight.performed -= instance.OnTalismanActionRight;
+                @TalismanActionRight.canceled -= instance.OnTalismanActionRight;
+                @TalismanActionDown.started -= instance.OnTalismanActionDown;
+                @TalismanActionDown.performed -= instance.OnTalismanActionDown;
+                @TalismanActionDown.canceled -= instance.OnTalismanActionDown;
             }
 
             /// <summary>
@@ -1768,6 +1852,34 @@ namespace Game.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnSprint(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "TalismanActionUp" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnTalismanActionUp(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "TalismanActionLeft" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnTalismanActionLeft(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "TalismanActionRight" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnTalismanActionRight(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "TalismanActionDown" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnTalismanActionDown(InputAction.CallbackContext context);
         }
         /// <summary>
         /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
