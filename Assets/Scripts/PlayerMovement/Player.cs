@@ -11,8 +11,19 @@ namespace PlayerMovement
     [RequireComponent(typeof(PlayerController), typeof(PlayerInput), typeof(PlayerCamera))]
     public class Player : MonoBehaviour
     {
-        public event Action<float> OnGravityChanged;
-
+#if UNITY_EDITOR
+        public event Action<float> OnGravityChangedDebug;
+        public event Action<TalismanInputs> OnTalismanInputsDebug;
+        
+#endif
+        public enum TalismanInputs
+        {
+            Up,
+            Down,
+            Left,
+            Right,
+        }
+        
         [SerializeField] private PlayerDataSO playerData;
 
         private float _gravity;
@@ -62,6 +73,8 @@ namespace PlayerMovement
             {
                 _input = _playerInput.MoveInput;
             }
+
+            HandleTalismanInputs();
             
             if (_playerInput.WasJumpPressed)
             {
@@ -118,6 +131,29 @@ namespace PlayerMovement
             if (_wasJumpPressed && !_wasJumpReleased && canJump)
             {
                 _velocity.y = _maxJumpVelocity;
+            }
+        }
+
+        private void HandleTalismanInputs()
+        {
+            if (_playerInput.WasTalismanUpPressed)
+            {
+                OnTalismanInputsDebug?.Invoke(TalismanInputs.Up);
+            }
+            
+            if (_playerInput.WasTalismanDownPressed)
+            {
+                OnTalismanInputsDebug?.Invoke(TalismanInputs.Down);
+            }
+            
+            if (_playerInput.WasTalismanLeftPressed)
+            {
+                OnTalismanInputsDebug?.Invoke(TalismanInputs.Left);
+            }
+            
+            if (_playerInput.WasTalismanRightPressed)
+            {
+                OnTalismanInputsDebug?.Invoke(TalismanInputs.Right);
             }
         }
 
@@ -291,7 +327,7 @@ namespace PlayerMovement
                 currentGravity = Mathf.Lerp(_gravity * playerData.apexGravityMultiplier, _gravity, atApexPosition);
             }
 
-            OnGravityChanged?.Invoke(currentGravity);
+            OnGravityChangedDebug?.Invoke(currentGravity);
 
             _velocity.y += currentGravity * Time.fixedDeltaTime;
             

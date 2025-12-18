@@ -10,6 +10,10 @@ namespace PlayerMovement
         public bool WasJumpPressed { get; private set; }
         public bool WasJumpReleased { get; private set; }
         public bool WasCrouchPressed { get; private set; }
+        public bool WasTalismanUpPressed { get; private set; }
+        public bool WasTalismanDownPressed { get; private set; }
+        public bool WasTalismanLeftPressed { get; private set; }
+        public bool WasTalismanRightPressed { get; private set; }
         public Vector2 MoveInput { get; private set; }
         
         private InputSystem_Actions _inputSystemActions;
@@ -26,10 +30,17 @@ namespace PlayerMovement
 
             _inputSystemActions.Player.Move.performed += OnPlayerMove;
             _inputSystemActions.Player.Move.canceled += OnPlayerMove;
+            
             _inputSystemActions.Player.Jump.started += OnPlayerJump;
             _inputSystemActions.Player.Jump.canceled += OnPlayerJumpRelease;
+            
             _inputSystemActions.Player.Crouch.performed += OnPlayerCrouch;
             _inputSystemActions.Player.Crouch.canceled += OnPlayerCrouchRelease;
+            
+            _inputSystemActions.Player.TalismanActionUp.performed += OnPlayerTalismanUpAction;
+            _inputSystemActions.Player.TalismanActionDown.performed += OnPlayerTalismanDownAction;
+            _inputSystemActions.Player.TalismanActionLeft.performed += OnPlayerTalismanLeftAction;
+            _inputSystemActions.Player.TalismanActionRight.performed += OnPlayerTalismanRightAction;
         }
         
         private void OnDisable()
@@ -39,8 +50,10 @@ namespace PlayerMovement
             
             _inputSystemActions.Player.Move.performed -= OnPlayerMove;
             _inputSystemActions.Player.Move.canceled -= OnPlayerMove;
+            
             _inputSystemActions.Player.Jump.performed -= OnPlayerJump;
             _inputSystemActions.Player.Jump.canceled -= OnPlayerJumpRelease;
+            
             _inputSystemActions.Player.Crouch.performed -= OnPlayerCrouch;
         }
 
@@ -67,6 +80,34 @@ namespace PlayerMovement
         private void OnPlayerCrouchRelease(InputAction.CallbackContext ctx)
         {
             WasCrouchPressed = false;
+        }
+
+        private void OnPlayerTalismanUpAction(InputAction.CallbackContext ctx)
+        {
+            WasTalismanUpPressed = true;
+        }
+        
+        private void OnPlayerTalismanDownAction(InputAction.CallbackContext ctx)
+        {
+            WasTalismanDownPressed = true;
+        }
+        
+        private void OnPlayerTalismanLeftAction(InputAction.CallbackContext ctx)
+        {
+            WasTalismanLeftPressed = true;
+        }
+        
+        private void OnPlayerTalismanRightAction(InputAction.CallbackContext ctx)
+        {
+            WasTalismanRightPressed = true;
+        }
+
+        public void OnResetAllTalismans()
+        {
+            WasTalismanUpPressed = false;
+            WasTalismanDownPressed = false;
+            WasTalismanLeftPressed = false;
+            WasTalismanRightPressed = false;
         }
         
         public void OnPlayerConsumeJump()
