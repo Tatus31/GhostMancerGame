@@ -27,6 +27,7 @@ namespace PlayerMovement
         }
         
         [SerializeField] private PlayerDataSO playerData;
+        [SerializeField] private TalismanCombinationSO[] equippedTalismans;
 
         private float _gravity;
         private float _maxJumpVelocity;
@@ -71,6 +72,8 @@ namespace PlayerMovement
             _playerCamera = GetComponent<PlayerCamera>();
 
             _playerController.OnLedgeDetected += HandleLedgeClimb;
+
+            _currentTalismanCombination = new List<TalismanInputs>();
 
             JumpVariableSetup();
         }
@@ -144,6 +147,7 @@ namespace PlayerMovement
 
         private void HandleTalismanInputs()
         {
+            
             if (_currentTalismanCombination.Count > 3)
             {
                 return;
@@ -155,6 +159,7 @@ namespace PlayerMovement
                 OnTalismanInputsDebug?.Invoke(TalismanInputs.Up);
                 _currentTalismanCombination.Add(TalismanInputs.Up);
                 StartTalismanTimer(TalismanInputs.Up);
+                HandleTalismanCombinations();
             }
             
             if (_playerInput.WasTalismanDownPressed)
@@ -163,6 +168,7 @@ namespace PlayerMovement
                 OnTalismanInputsDebug?.Invoke(TalismanInputs.Down);
                 _currentTalismanCombination.Add(TalismanInputs.Down);
                 StartTalismanTimer(TalismanInputs.Down);
+                HandleTalismanCombinations();
             }
             
             if (_playerInput.WasTalismanLeftPressed)
@@ -171,6 +177,7 @@ namespace PlayerMovement
                 OnTalismanInputsDebug?.Invoke(TalismanInputs.Left);
                 _currentTalismanCombination.Add(TalismanInputs.Left);
                 StartTalismanTimer(TalismanInputs.Left);
+                HandleTalismanCombinations();
             }
             
             if (_playerInput.WasTalismanRightPressed)
@@ -179,9 +186,43 @@ namespace PlayerMovement
                 OnTalismanInputsDebug?.Invoke(TalismanInputs.Right);
                 _currentTalismanCombination.Add(TalismanInputs.Right);
                 StartTalismanTimer(TalismanInputs.Right);
+                HandleTalismanCombinations();
             }
         }
 
+        private void HandleTalismanCombinations()
+        {
+            if (_currentTalismanCombination.Count <= 1)
+            {
+                return;
+            }
+
+            for (int y = 0; y < equippedTalismans.Length; y++)
+            {
+                if (_currentTalismanCombination.Count != equippedTalismans[y].talismanInputs.Count)
+                {
+                    continue;
+                }
+
+                bool allMatch = true;
+                for (int i = 0; i < _currentTalismanCombination.Count; i++)
+                {
+                    if (_currentTalismanCombination[i] != equippedTalismans[y].talismanInputs[i])
+                    {
+                        allMatch = false;
+                        break;
+                    }
+                }
+
+                if (allMatch)
+                {
+                    Debug.Log($"activating talisman name: {equippedTalismans[y].talismanName}");
+                    _currentTalismanCombination.Clear();
+                    return;
+                }
+            }
+        }
+        
         private void StartTalismanTimer(TalismanInputs talismanInputs)
         {
             if (_previousTalismanInputs == talismanInputs)
