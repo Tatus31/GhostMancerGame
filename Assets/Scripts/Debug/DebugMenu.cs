@@ -15,6 +15,8 @@ public class DebugMenu : MonoBehaviour
     [SerializeField] private RawImage leftTalisman;
     [SerializeField] private RawImage rightTalisman;
     [SerializeField] private RawImage downTalisman;
+    
+    private RawImage[] _talismanImages;
 
     private float _gravity;
     
@@ -22,6 +24,8 @@ public class DebugMenu : MonoBehaviour
     
     private void Start()
     {
+        _talismanImages = new[] { upTalisman, leftTalisman, rightTalisman, downTalisman };
+        
         var go = GameObject.FindGameObjectsWithTag("Player");
         _player = go[0].GetComponent<Player>();
 
@@ -32,8 +36,9 @@ public class DebugMenu : MonoBehaviour
 
         _player.OnGravityChangedDebug += gravity => _gravity = gravity;
         _player.OnTalismanInputsDebug += UpdateTalismanActions;
+        _player.OnTalismanResetDebug += ResetTalismanActions;
     }
-
+    
     private void UpdatePlayerValues()
     {
         if (!_player)
@@ -62,6 +67,17 @@ public class DebugMenu : MonoBehaviour
         if (image)
         {
             image.color = Color.red;
+        }
+    }
+    
+    private void ResetTalismanActions()
+    {
+        foreach (var image in _talismanImages)
+        {
+            if (image)
+            {
+                image.color = Color.white;
+            }
         }
     }
 

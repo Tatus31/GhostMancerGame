@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Camera;
 using DG.Tweening;
@@ -14,6 +15,7 @@ namespace PlayerMovement
 #if UNITY_EDITOR
         public event Action<float> OnGravityChangedDebug;
         public event Action<TalismanInputs> OnTalismanInputsDebug;
+        public event Action OnTalismanResetDebug;
         
 #endif
         public enum TalismanInputs
@@ -33,6 +35,7 @@ namespace PlayerMovement
         private float _velocitySlideXSmoothing;
         private float _jumpBufferCurrentTime;
         private float _coyoteTimeCounter;
+        private float _talismanTimer;
 
         private Vector2 _velocity;
         private Vector2 _input;
@@ -47,6 +50,11 @@ namespace PlayerMovement
         private PlayerInput _playerInput;
         private PlayerCamera _playerCamera;
         private Sequence _climbSequence;
+        private Coroutine _talismanTimerCoroutine = null;
+        
+        private TalismanInputs? _previousTalismanInputs = null;
+
+        private List<TalismanInputs> _currentTalismanCombination;
 
         public Vector2 Velocity => _velocity;
 
@@ -136,25 +144,78 @@ namespace PlayerMovement
 
         private void HandleTalismanInputs()
         {
+            if (_currentTalismanCombination.Count > 3)
+            {
+                return;
+            }
+            
             if (_playerInput.WasTalismanUpPressed)
             {
+                _playerInput.WasTalismanUpPressed = false;
                 OnTalismanInputsDebug?.Invoke(TalismanInputs.Up);
+                _currentTalismanCombination.Add(TalismanInputs.Up);
+                StartTalismanTimer(TalismanInputs.Up);
             }
             
             if (_playerInput.WasTalismanDownPressed)
             {
+                _playerInput.WasTalismanDownPressed = false;
                 OnTalismanInputsDebug?.Invoke(TalismanInputs.Down);
+                _currentTalismanCombination.Add(TalismanInputs.Down);
+                StartTalismanTimer(TalismanInputs.Down);
             }
             
             if (_playerInput.WasTalismanLeftPressed)
             {
+                _playerInput.WasTalismanLeftPressed = false;
                 OnTalismanInputsDebug?.Invoke(TalismanInputs.Left);
+                _currentTalismanCombination.Add(TalismanInputs.Left);
+                StartTalismanTimer(TalismanInputs.Left);
             }
             
             if (_playerInput.WasTalismanRightPressed)
             {
+                _playerInput.WasTalismanRightPressed = false;
                 OnTalismanInputsDebug?.Invoke(TalismanInputs.Right);
+                _currentTalismanCombination.Add(TalismanInputs.Right);
+                StartTalismanTimer(TalismanInputs.Right);
             }
+        }
+
+        private void StartTalismanTimer(TalismanInputs talismanInputs)
+        {
+            if (_previousTalismanInputs == talismanInputs)
+            {
+                return;
+            }
+
+            _previousTalismanInputs = talismanInputs;
+
+            if (_talismanTimerCoroutine != null)
+            {
+                StopCoroutine(_talismanTimerCoroutine);
+            }
+
+            _talismanTimerCoroutine = StartCoroutine(TalismanTimerCoroutine());
+        }
+
+        private IEnumerator TalismanTimerCoroutine()
+        {
+            float timer = playerData.talismanResetTimer;
+
+            while (timer >= 0.01f)
+            {
+                timer -= Time.deltaTime;
+                yield return null;
+            }
+            
+            _playerInput.OnResetAllTalismans();
+            Debug.Log("reset all talismans");
+            _previousTalismanInputs = null;
+            _talismanTimerCoroutine = null;
+            _currentTalismanCombination.Clear();
+            
+            OnTalismanResetDebug?.Invoke();
         }
 
         //Maybe add coyote time to this too? 

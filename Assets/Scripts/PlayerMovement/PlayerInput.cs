@@ -10,10 +10,10 @@ namespace PlayerMovement
         public bool WasJumpPressed { get; private set; }
         public bool WasJumpReleased { get; private set; }
         public bool WasCrouchPressed { get; private set; }
-        public bool WasTalismanUpPressed { get; private set; }
-        public bool WasTalismanDownPressed { get; private set; }
-        public bool WasTalismanLeftPressed { get; private set; }
-        public bool WasTalismanRightPressed { get; private set; }
+        public bool WasTalismanUpPressed { get; set; }
+        public bool WasTalismanDownPressed { get; set; }
+        public bool WasTalismanLeftPressed { get; set; }
+        public bool WasTalismanRightPressed { get; set; }
         public Vector2 MoveInput { get; private set; }
         
         private InputSystem_Actions _inputSystemActions;
