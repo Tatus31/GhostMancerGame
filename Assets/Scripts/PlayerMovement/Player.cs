@@ -16,6 +16,7 @@ namespace PlayerMovement
         public event Action<float> OnGravityChangedDebug;
         public event Action<TalismanInputs> OnTalismanInputsDebug;
         public event Action OnTalismanResetDebug;
+        public event Action<string> OnTalismanCorrectInput;
         
 #endif
         public enum TalismanInputs
@@ -156,7 +157,9 @@ namespace PlayerMovement
             if (_playerInput.WasTalismanUpPressed)
             {
                 _playerInput.WasTalismanUpPressed = false;
+#if UNITY_EDITOR
                 OnTalismanInputsDebug?.Invoke(TalismanInputs.Up);
+#endif
                 _currentTalismanCombination.Add(TalismanInputs.Up);
                 StartTalismanTimer(TalismanInputs.Up);
                 HandleTalismanCombinations();
@@ -165,7 +168,9 @@ namespace PlayerMovement
             if (_playerInput.WasTalismanDownPressed)
             {
                 _playerInput.WasTalismanDownPressed = false;
+#if UNITY_EDITOR
                 OnTalismanInputsDebug?.Invoke(TalismanInputs.Down);
+#endif                
                 _currentTalismanCombination.Add(TalismanInputs.Down);
                 StartTalismanTimer(TalismanInputs.Down);
                 HandleTalismanCombinations();
@@ -174,7 +179,9 @@ namespace PlayerMovement
             if (_playerInput.WasTalismanLeftPressed)
             {
                 _playerInput.WasTalismanLeftPressed = false;
+#if UNITY_EDITOR
                 OnTalismanInputsDebug?.Invoke(TalismanInputs.Left);
+#endif         
                 _currentTalismanCombination.Add(TalismanInputs.Left);
                 StartTalismanTimer(TalismanInputs.Left);
                 HandleTalismanCombinations();
@@ -183,7 +190,9 @@ namespace PlayerMovement
             if (_playerInput.WasTalismanRightPressed)
             {
                 _playerInput.WasTalismanRightPressed = false;
+#if UNITY_EDITOR
                 OnTalismanInputsDebug?.Invoke(TalismanInputs.Right);
+#endif
                 _currentTalismanCombination.Add(TalismanInputs.Right);
                 StartTalismanTimer(TalismanInputs.Right);
                 HandleTalismanCombinations();
@@ -216,7 +225,10 @@ namespace PlayerMovement
 
                 if (allMatch)
                 {
+#if UNITY_EDITOR
                     Debug.Log($"activating talisman name: {equippedTalismans[y].talismanName}");
+                    OnTalismanCorrectInput?.Invoke(equippedTalismans[y].talismanName);
+#endif
                     _currentTalismanCombination.Clear();
                     return;
                 }
@@ -251,7 +263,9 @@ namespace PlayerMovement
             }
             
             _playerInput.OnResetAllTalismans();
+#if UNITY_EDITOR
             Debug.Log("reset all talismans");
+#endif            
             _previousTalismanInputs = null;
             _talismanTimerCoroutine = null;
             _currentTalismanCombination.Clear();

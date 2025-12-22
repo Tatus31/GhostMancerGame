@@ -10,6 +10,7 @@ public class DebugMenu : MonoBehaviour
     [SerializeField] private TextMeshProUGUI gravityText;
     [SerializeField] private TextMeshProUGUI velocityText;
     [SerializeField] private TextMeshProUGUI groundedText;
+    [SerializeField] private TextMeshProUGUI talismanText;
     [Header("[Talismans]")]
     [SerializeField] private RawImage upTalisman;
     [SerializeField] private RawImage leftTalisman;
@@ -25,6 +26,14 @@ public class DebugMenu : MonoBehaviour
     private void Start()
     {
         _talismanImages = new[] { upTalisman, leftTalisman, rightTalisman, downTalisman };
+
+        foreach (var talismanImage in _talismanImages)
+        {
+            if (!talismanImage)
+            {
+                Debug.LogWarning($"No talisman image found in the scene");
+            }
+        }
         
         var go = GameObject.FindGameObjectsWithTag("Player");
         _player = go[0].GetComponent<Player>();
@@ -37,8 +46,21 @@ public class DebugMenu : MonoBehaviour
         _player.OnGravityChangedDebug += gravity => _gravity = gravity;
         _player.OnTalismanInputsDebug += UpdateTalismanActions;
         _player.OnTalismanResetDebug += ResetTalismanActions;
+        _player.OnTalismanCorrectInput += UpdateTalismanName;
     }
-    
+
+    private void OnDestroy()
+    {
+        _player.OnTalismanInputsDebug -= UpdateTalismanActions;
+        _player.OnTalismanResetDebug -= ResetTalismanActions;
+        _player.OnTalismanCorrectInput -= UpdateTalismanName;
+    }
+
+    private void UpdateTalismanName(string talismanName)
+    {
+        talismanText.text = talismanName;
+    }
+
     private void UpdatePlayerValues()
     {
         if (!_player)
@@ -79,6 +101,8 @@ public class DebugMenu : MonoBehaviour
                 image.color = Color.white;
             }
         }
+        
+        //talismanText.text = "Empty";
     }
 
     private RawImage SelectTalismanDebugImage(Player.TalismanInputs talismanDirection)

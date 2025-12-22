@@ -189,7 +189,7 @@ namespace PlayerMovement
 
                     if (wallHeight <= maxStepHeight && wallHeight >= minStepHeight && !_isSteppingUp)
                     {
-                        Debug.Log($"wallHeight: {wallHeight} wallCollider.bounds.max.y: {wallCollider.bounds.max.y} - _playerBoxCollider.bounds.min.y: {_playerBoxCollider.bounds.min.y}");
+                        // Debug.Log($"wallHeight: {wallHeight} wallCollider.bounds.max.y: {wallCollider.bounds.max.y} - _playerBoxCollider.bounds.min.y: {_playerBoxCollider.bounds.min.y}");
                         float targetDistance = pushDistance * dirX;
                         OnLedgeDetected?.Invoke(wallHeight, targetDistance);
                     }
