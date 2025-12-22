@@ -15,4 +15,6 @@ MonoBehaviour:
   talismanName: Sprint
   talismanInputs: 000000000000000003000000
   talismanSprite: {fileID: 0}
-  talismanInputSprite: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
+  talismanInputSprite: {fileID: 21300000, guid: a9cfa818b22cfb14fb93f923bbfbd51a, type: 3}
+  effects:
+  - {fileID: 11400000, guid: 6f5b2d0d0fdc79b48ac59b09b0861117, type: 2}

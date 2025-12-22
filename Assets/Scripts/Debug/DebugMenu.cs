@@ -36,6 +36,7 @@ public class DebugMenu : MonoBehaviour
         _talismanImages = new[] { upTalisman, leftTalisman, rightTalisman, downTalisman };
         _talismanActivationImages = new []{talismanImageFirst,  talismanImageSecond, talismanImageThird};
 
+
         foreach (var talismanImage in _talismanImages)
         {
             if (!talismanImage)
@@ -53,7 +54,12 @@ public class DebugMenu : MonoBehaviour
         }
 
         _equippedTalismans = _player.EquippedTalismans;
-        
+
+        if (_equippedTalismans.Length > 0)
+        {
+            Debug.Log(_equippedTalismans.Length);
+        }
+            
         _player.OnGravityChangedDebug += gravity => _gravity = gravity;
         _player.OnTalismanInputsDebug += UpdateTalismanActions;
         _player.OnTalismanResetDebug += ResetTalismanActions;

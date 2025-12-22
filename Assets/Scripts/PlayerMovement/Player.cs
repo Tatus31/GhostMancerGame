@@ -57,6 +57,8 @@ namespace PlayerMovement
         private TalismanInputs? _previousTalismanInputs = null;
 
         private List<TalismanInputs> _currentTalismanCombination;
+        
+        public PlayerDataSO PlayerData => playerData;
 
         public TalismanCombinationSO[] EquippedTalismans
         {
@@ -235,12 +237,19 @@ namespace PlayerMovement
                     Debug.Log($"activating talisman name: {equippedTalismans[y].talismanName}");
                     OnTalismanCorrectInput?.Invoke(equippedTalismans[y].talismanName);
 #endif
+                    OnActivateTalisman(equippedTalismans[y]);
+                    
                     _currentTalismanCombination.Clear();
                     return;
                 }
             }
         }
-        
+
+        private void OnActivateTalisman(TalismanCombinationSO talisman)
+        {
+            talisman.ActivateTalisman(this);
+        }
+
         private void StartTalismanTimer(TalismanInputs talismanInputs)
         {
             if (_previousTalismanInputs == talismanInputs)
@@ -421,6 +430,7 @@ namespace PlayerMovement
             }
             
             float targetVelocityX = input.x * playerData.moveSpeed;
+
             float atApexPosition = 0;
             
             if (!_playerController.GetCollisionInfo.Bottom)
