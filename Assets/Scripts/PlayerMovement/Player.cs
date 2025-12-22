@@ -58,6 +58,12 @@ namespace PlayerMovement
 
         private List<TalismanInputs> _currentTalismanCombination;
 
+        public TalismanCombinationSO[] EquippedTalismans
+        {
+            get => equippedTalismans;
+            set => equippedTalismans = value;
+        }
+
         public Vector2 Velocity => _velocity;
 
         public bool WasGrounded

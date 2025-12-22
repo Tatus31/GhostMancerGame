@@ -1,5 +1,6 @@
 using System;
 using PlayerMovement;
+using PlayerMovement.PlayerData;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,8 +17,15 @@ public class DebugMenu : MonoBehaviour
     [SerializeField] private RawImage leftTalisman;
     [SerializeField] private RawImage rightTalisman;
     [SerializeField] private RawImage downTalisman;
+    [Header("[Talisman Actions]")]
+    [SerializeField] private Image talismanImageFirst;
+    [SerializeField] private Image talismanImageSecond;
+    [SerializeField] private Image talismanImageThird;
     
     private RawImage[] _talismanImages;
+    private Image[] _talismanActivationImages;
+    
+    private TalismanCombinationSO[] _equippedTalismans;
 
     private float _gravity;
     
@@ -26,6 +34,7 @@ public class DebugMenu : MonoBehaviour
     private void Start()
     {
         _talismanImages = new[] { upTalisman, leftTalisman, rightTalisman, downTalisman };
+        _talismanActivationImages = new []{talismanImageFirst,  talismanImageSecond, talismanImageThird};
 
         foreach (var talismanImage in _talismanImages)
         {
@@ -43,10 +52,14 @@ public class DebugMenu : MonoBehaviour
             Debug.LogError("No player found in the scene");
         }
 
+        _equippedTalismans = _player.EquippedTalismans;
+        
         _player.OnGravityChangedDebug += gravity => _gravity = gravity;
         _player.OnTalismanInputsDebug += UpdateTalismanActions;
         _player.OnTalismanResetDebug += ResetTalismanActions;
         _player.OnTalismanCorrectInput += UpdateTalismanName;
+
+        UpdateTalismanActivationHelper();
     }
 
     private void OnDestroy()
@@ -59,6 +72,16 @@ public class DebugMenu : MonoBehaviour
     private void UpdateTalismanName(string talismanName)
     {
         talismanText.text = talismanName;
+    }
+
+    private void UpdateTalismanActivationHelper()
+    {
+        for (int i = 0; i < _talismanActivationImages.Length; i++)
+        {
+            //Wrap around if needed
+            int talismanIndex = i % _equippedTalismans.Length;
+            _talismanActivationImages[i].sprite = _equippedTalismans[talismanIndex].talismanInputSprite;
+        }
     }
 
     private void UpdatePlayerValues()

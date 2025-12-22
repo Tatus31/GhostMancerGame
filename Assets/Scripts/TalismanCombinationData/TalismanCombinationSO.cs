@@ -9,6 +9,7 @@ namespace PlayerMovement.PlayerData
         public string talismanName;
         public List<Player.TalismanInputs> talismanInputs;
         public Sprite talismanSprite;
+        public Sprite talismanInputSprite;
     }
 
 }
