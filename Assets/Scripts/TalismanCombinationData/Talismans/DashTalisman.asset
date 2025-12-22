@@ -15,3 +15,5 @@ MonoBehaviour:
   talismanName: Dash
   talismanInputs: 0200000003000000
   talismanSprite: {fileID: 0}
+  talismanInputSprite: {fileID: 21300000, guid: 9434729eec944c44fbecb8823861703b, type: 3}
+  effects: []
