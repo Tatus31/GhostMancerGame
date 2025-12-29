@@ -2680,6 +2680,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8756998630026383522, guid: 788289c48943ab645a20248441711358, type: 3}
+      propertyPath: playerData
+      value: 
+      objectReference: {fileID: 11400000, guid: 0b7918b28b322954fa4c8add532dc443, type: 2}
+    - target: {fileID: 8756998630026383522, guid: 788289c48943ab645a20248441711358, type: 3}
       propertyPath: equippedTalismans.Array.size
       value: 3
       objectReference: {fileID: 0}

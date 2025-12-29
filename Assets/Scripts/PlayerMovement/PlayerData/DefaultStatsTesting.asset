@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fa9e3a30502817d46ac2f942aad413af, type: 3}
-  m_Name: DefaultStats
+  m_Name: DefaultStatsTesting
   m_EditorClassIdentifier: 
   maxJumpHeight: 7
   minJumpHeight: 0.5

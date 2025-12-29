@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76e3bf633dfe4edb8e9f83dfbb880515, type: 3}
   m_Name: SpeedBoostDefault
   m_EditorClassIdentifier: 
-  speedMultiplier: 2
-  groundAccelerationMultiplier: 0.1
-  groundDecelerationMultiplier: 0.1
-  airAccelerationMultiplier: 0.1
-  airDecelerationMultiplier: 0.1
+  speedMultiplier: 1.6
+  groundAccelerationMultiplier: 2
+  groundDecelerationMultiplier: 2
+  airAccelerationMultiplier: 2
+  airDecelerationMultiplier: 2
   duration: 5

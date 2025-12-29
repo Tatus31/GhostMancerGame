@@ -11,7 +11,7 @@ namespace PlayerMovement.PlayerData
         [Range(0f, 100f)]
         public float maxJumpHeight = 4f;
         [Tooltip("How small can the player jump height be")]
-        [Range(0f, 100f)]
+        [Range(0f, 20f)]
         public float minJumpHeight = 1f;
         [Tooltip("How long it takes for the player to reach the apex of his jump")]
         [Range(0f, 10f)]
@@ -27,7 +27,7 @@ namespace PlayerMovement.PlayerData
         public float jumpBufferMaxTime = 0.1f;
         [Header("[Movement]")]
         [Tooltip("The maximum speed the player can achieve")]
-        [Range(0f, 100f)]
+        [Range(0f, 20f)]
         public float moveSpeed = 5f;
         [Tooltip("How much faster the player becomes at the apex")]
         [Range(0f, 1f)]

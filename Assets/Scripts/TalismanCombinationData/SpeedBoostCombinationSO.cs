@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -27,24 +28,36 @@ namespace PlayerMovement.PlayerData
         private float duration = 5f;
 
         private Coroutine _activeEffectCoroutine;
+        public PlayerMovementStatsForBoost _originalPlayerStats;
+        public int _activationCount = 0;
 
         public override void ActivateTalisman(Player player)
         {
+            if (_activationCount == 0)
+            {
+                _originalPlayerStats = GetPlayerMovementStats(player);
+            }
+
+            _activationCount++;
+            
             if (_activeEffectCoroutine != null)
             {
                 player.StopCoroutine(_activeEffectCoroutine);
             }
-            
+
             _activeEffectCoroutine = player.StartCoroutine(ApplySpeedBoostEffect(player));
         }
 
         private IEnumerator ApplySpeedBoostEffect(Player player)
         {
-            var originalPlayerStats = GetPlayerMovementStats(player);
+            // _originalPlayerStats = GetPlayerMovementStats(player);
             ApplyMoveBoostModifiers(player);
             
             yield  return new WaitForSeconds(duration);
-            RestoreOriginalPlayerStats(player, originalPlayerStats);
+            
+            _activationCount = 0;
+
+            RestoreOriginalPlayerStats(player, _originalPlayerStats);
             _activeEffectCoroutine = null;
         }
 
@@ -65,10 +78,22 @@ namespace PlayerMovement.PlayerData
             playerData.accelerationInAir *= airAccelerationMultiplier;
             playerData.decelerationOnGround *= groundDecelerationMultiplier;
             playerData.decelerationInAir *= airDecelerationMultiplier;
+            
+            // Debug.Log($"applied stats: playerData.moveSpeed [{playerData.moveSpeed}] | playerData.accelerationOnGround [{playerData.moveSpeed}] " +
+            //           $"| playerData.accelerationInAir [{playerData.accelerationInAir}] | playerData.decelerationOnGround [{playerData.decelerationOnGround}] " +
+            //           $"| playerData.decelerationInAir  [{playerData.decelerationInAir}] ");
         }
 
         private void RestoreOriginalPlayerStats(Player player, PlayerMovementStatsForBoost  playerStats)
         {
+            if (!playerStats.IsValid())
+            {
+#if UNITY_EDITOR
+                Debug.LogWarning("the playerStats values are 0 or below");
+#endif
+                return;
+            }
+            
             var playerData = player.PlayerData;
 
             playerData.moveSpeed = playerStats.MoveSpeed;
@@ -92,13 +117,20 @@ namespace PlayerMovement.PlayerData
             };
         }
 
-        private struct PlayerMovementStatsForBoost
+        [Serializable]
+        public struct PlayerMovementStatsForBoost
         {
             public float MoveSpeed;
             public float AccelerationOnGround;
             public float AccelerationInAir;
             public float DecelerationOnGround;
             public float DecelerationInAir;
+            
+            public bool IsValid()
+            {
+                return MoveSpeed > 0 || AccelerationOnGround > 0 || AccelerationInAir > 0 
+                       || DecelerationOnGround > 0 || DecelerationInAir > 0;
+            }
         }
     }
 }
