@@ -26,11 +26,13 @@ namespace PlayerMovement.PlayerData
         [Header("Effect Settings")]
         [SerializeField, Min(0f)] 
         private float duration = 5f;
+        [SerializeField, Min(0f)] 
+        private int maxEffects = 2;
 
         private Coroutine _activeEffectCoroutine;
-        public PlayerMovementStatsForBoost _originalPlayerStats;
-        public int _activationCount = 0;
-
+        private PlayerMovementStatsForBoost _originalPlayerStats;
+        private int _activationCount = 0;
+        
         public override void ActivateTalisman(Player player)
         {
             if (_activationCount == 0)
@@ -67,6 +69,11 @@ namespace PlayerMovement.PlayerData
             
             RestoreOriginalPlayerStats(player, originalPlayerStats);
             _activeEffectCoroutine = null;
+        }
+
+        public override int GetMaxEffects()
+        {
+            return maxEffects;
         }
 
         private void ApplyMoveBoostModifiers(Player player)
@@ -116,9 +123,8 @@ namespace PlayerMovement.PlayerData
                 DecelerationInAir =  playerData.decelerationInAir,
             };
         }
-
-        [Serializable]
-        public struct PlayerMovementStatsForBoost
+        
+        private struct PlayerMovementStatsForBoost
         {
             public float MoveSpeed;
             public float AccelerationOnGround;
