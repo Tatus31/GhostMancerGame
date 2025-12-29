@@ -36,17 +36,17 @@ namespace PlayerMovement.PlayerData
         [Range(0f, 1f)]
         public float coyoteTime = 0.1f;
         [Header("[Acceleration/Deceleration]")]
-        [Range(0f, 100f)]
+        [Range(0f, 10f)]
         public float accelerationOnGround = 0.1f;
-        [Range(0f, 100f)]
+        [Range(0f, 10f)]
         public float accelerationInAir = 0.2f;
-        [Range(0f, 100f)]
+        [Range(0f, 10f)]
         public float decelerationOnGround = 0.1f;
-        [Range(0f, 100f)]
+        [Range(0f, 10f)]
         public float decelerationInAir = 0.2f;
         [Header("[Movement Limits]")]
         [Tooltip("How fast can the player fall")]
-        [Range(0f, 100f)]
+        [Range(0.1f, 100f)]
         public float maxFallSpeed = 10f;
         [Tooltip("How fast can the player move")]
         [Range(0f, 100f)]
